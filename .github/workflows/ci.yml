@@ -13,18 +13,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Java
+      - name: Set up JDK
         uses: actions/setup-java@v2
         with:
-          java-version: 11
+          java-version: '17'
+          distribution: 'adopt'
 
       - name: Set up Scala
-        uses: olafurpg/setup-scala@v12
+        uses: olafurpg/setup-scala@v13
         with:
-          java-version: adopt@1.8.0-292
+          scala-version: 3.3.0
 
       - name: Build and test
-        run: sbt clean test
+        run: sbt compile test
