@@ -1,35 +1,45 @@
 name: Scala Build and Test
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
-    branches:
-      - main
+  push:
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  build:
+  run:
+    name: Build and Run
+    strategy:
+      matrix:
+        java-version: [8, 11, 17]
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
+      - name: Checkout current branch (full)
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Set up JDK
+      - name: Setup Java
         uses: actions/setup-java@v2
         with:
-          java-version: '17'
           distribution: 'adopt'
+          java-version: '17'
 
-      - name: Install sbt
-        run: |
-          curl -L --output sbt.zip https://github.com/sbt/sbt/releases/download/v1.6.5/sbt-1.6.5.zip
-          unzip sbt.zip
-          echo 'export PATH=$HOME/sbt/bin:$PATH' >> $GITHUB_ENV
+      - name: Cache sbt
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache/v1
+            ~/.cache/coursier/v1
+            ~/AppData/Local/Coursier/Cache/v1
+            ~/Library/Caches/Coursier/v1
+          key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
-      - name: Set up Scala
-        run: sbt ++3.0.2 setup
+      - name: Run the project
+        run: sbt run
 
-      - name: Build and test
+      - name: Run the unit tests
         run: sbt test
