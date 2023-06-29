@@ -29,9 +29,12 @@ lazy val root = project
       "org.tpolecat" %% "doobie-hikari" % doobieVersion,
       "org.tpolecat" %% "doobie-postgres" % doobieVersion,
       "org.flywaydb" % "flyway-core" % flywayVersion,
+      "org.log4s" %% "log4s" % "1.10.0",
+      "org.scalatest" %% "scalatest" % "3.2.15" % Test,
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
     )
   )
-val scala3Version = "3.0.0"
+val scala3Version = "3.3.0"
 val LogbackVersion = "1.4.7"
 val catsEffectVersion = "3.5.0"
 val circeVersion = "0.14.5"

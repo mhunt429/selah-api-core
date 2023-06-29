@@ -36,8 +36,8 @@ private val routes: HttpRoutes[IO] = Router(
   }
   private val loggers: HttpApp[IO] => HttpApp[IO] = {
     { (http: HttpApp[IO]) =>
-      RequestLogger.httpApp(true, true)(http)
-    } andThen { (http: HttpApp[IO]) =>( ResponseLogger.httpApp(true, true)(http))
+      RequestLogger.httpApp(true, false)(http)
+    } andThen { (http: HttpApp[IO]) =>( ResponseLogger.httpApp(true, false)(http))
      
     }
   }
