@@ -2,17 +2,18 @@ package modules
 
 import application.sevices.HealthCheckServiceImpl
 import cats.effect.kernel.Async
-import cats.effect.*
+import cats.effect._
+import modules._
+
 
 //Dependency injection for application service layer
 object Services {
-  def make[F[_]: Async](repository: Repository[F]): Services[F] = {
-    new Services[F](repository) {}
+  def make(repository: Repository): Services = {
+    new Services(repository)
   }
 }
 
-sealed abstract  class Services[F[_]: Async] private (
- repository: Repository[F]) {
-  val healthCheckService: HealthCheckServiceImpl[F] = 
-    HealthCheckServiceImpl[F](repository.healthCheckRepository)
+ class Services private (repository: Repository) {
+  val healthCheckService: HealthCheckServiceImpl =
+    HealthCheckServiceImpl(repository.healthCheckRepository)
 }

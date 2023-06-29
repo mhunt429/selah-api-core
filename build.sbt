@@ -31,7 +31,7 @@ lazy val root = project
       "org.flywaydb" % "flyway-core" % flywayVersion,
     )
   )
-val scala3Version = "3.3.0"
+val scala3Version = "3.0.0"
 val LogbackVersion = "1.4.7"
 val catsEffectVersion = "3.5.0"
 val circeVersion = "0.14.5"

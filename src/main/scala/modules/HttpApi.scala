@@ -1,44 +1,45 @@
 package modules
 
-import cats.effect.Async
+import cats.effect.{Async, IO}
 import cats.syntax.all.*
 import http.routes.HealthCheckRoutes
 import modules.Services
-import org.http4s._
-import org.http4s.implicits._
+import org.http4s.*
+import org.http4s.implicits.*
 import org.http4s.server.Router
-import org.http4s.server.middleware._
-import scala.concurrent.duration._
+import org.http4s.server.middleware.*
+
+import scala.concurrent.duration.*
 object HttpApi {
-  def make[F[_] : Async](services: Services[F]): HttpApi[F] =
+  def make[F[_] : Async](services: Services): HttpApi[F] =
     new HttpApi[F](services) {}
 }
 
 sealed abstract class HttpApi[F[_]: Async] private (
-  services: Services[F],
+  services: Services
  ) {
-  private val healthRoutes   = HealthCheckRoutes[F](services.healthCheckService).routes
+  private val healthRoutes   = HealthCheckRoutes(services.healthCheckService).routes
 
-  private val publicRoutes: HttpRoutes[F] =
+  private val publicRoutes: HttpRoutes[IO] =
     healthRoutes
-private val routes: HttpRoutes[F] = Router(
-  "v1" -> publicRoutes
+private val routes: HttpRoutes[IO] = Router(
+  "api/v1" -> publicRoutes
 )
-  private val middleware: HttpRoutes[F] => HttpRoutes[F] = {
-    { (http: HttpRoutes[F]) =>
+  private val middleware: HttpRoutes[IO] => HttpRoutes[IO] = {
+    { (http: HttpRoutes[IO]) =>
       AutoSlash(http)
-    } andThen { (http: HttpRoutes[F]) =>
+    } andThen { (http: HttpRoutes[IO]) =>
       CORS(http)
-    } andThen { (http: HttpRoutes[F]) =>
+    } andThen { (http: HttpRoutes[IO]) =>
       Timeout(60.seconds)(http)
     }
   }
-  private val loggers: HttpApp[F] => HttpApp[F] = {
-    { (http: HttpApp[F]) =>
+  private val loggers: HttpApp[IO] => HttpApp[IO] = {
+    { (http: HttpApp[IO]) =>
       RequestLogger.httpApp(true, true)(http)
-    } andThen { (http: HttpApp[F]) =>( ResponseLogger.httpApp(true, true)(http))
+    } andThen { (http: HttpApp[IO]) =>( ResponseLogger.httpApp(true, true)(http))
      
     }
   }
-  val httpApp: HttpApp[F] = loggers(middleware(routes).orNotFound)
+  val httpApp: HttpApp[IO] = loggers(middleware(routes).orNotFound)
 }
