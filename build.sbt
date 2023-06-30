@@ -3,7 +3,6 @@ lazy val root = project
   .settings(
     name := "selah-api",
     version := "0.1.0-SNAPSHOT",
-
     scalaVersion := scala3Version,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "0.7.29" % Test,
@@ -31,7 +30,7 @@ lazy val root = project
       "org.flywaydb" % "flyway-core" % flywayVersion,
       "org.log4s" %% "log4s" % "1.10.0",
       "org.scalatest" %% "scalatest" % "3.2.15" % Test,
-      "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test
     )
   )
 val scala3Version = "3.3.0"

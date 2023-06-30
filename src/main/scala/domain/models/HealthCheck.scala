@@ -1,4 +1,4 @@
 package domain.HealthCheck
-case class PostgresStatus(ok: Boolean)
+case class PostgreSQL(ok: Boolean)
 
-case class HealthCheck(postgresqlStatus: PostgresStatus)
+case class HealthCheck(PostgreSQL: PostgreSQL)
