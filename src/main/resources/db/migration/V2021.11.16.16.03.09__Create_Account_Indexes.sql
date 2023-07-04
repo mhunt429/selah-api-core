@@ -1,0 +1,1 @@
+CREATE INDEX account_user_id_idx on user_bank_account(user_id);

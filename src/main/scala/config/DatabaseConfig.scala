@@ -1,22 +1,26 @@
 package config
 
-import cats.syntax.functor.*
 import cats.effect.{Async, IO, Resource, Sync}
+import cats.syntax.functor.*
 import doobie.hikari.HikariTransactor
-import org.flywaydb.core.Flyway
 import doobie.util.ExecutionContexts
+import org.flywaydb.core.Flyway
+
 import scala.concurrent.ExecutionContext
 
 case class DatabaseConfig(
-                           url: String,
-                           driver: String,
-                           user: String,
-                           password: String,
-                           connections: Int,
-                         )
+    url: String,
+    driver: String,
+    user: String,
+    password: String,
+    connections: Int
+)
 
 object DatabaseConfig {
-  def transactor(config: DatabaseConfig, executionContext: ExecutionContext): Resource[IO, HikariTransactor[IO]] = {
+  def transactor(
+      config: DatabaseConfig,
+      executionContext: ExecutionContext
+  ): Resource[IO, HikariTransactor[IO]] = {
     HikariTransactor.newHikariTransactor[IO](
       config.driver,
       config.url,
@@ -29,7 +33,12 @@ object DatabaseConfig {
   def initialize(transactor: HikariTransactor[IO]): IO[Unit] = {
     transactor.configure { dataSource =>
       IO {
-        val flyWay = Flyway.configure().dataSource(dataSource).load()
+        val flyWay = Flyway
+          .configure()
+          .mixed(true)
+          .dataSource(dataSource)
+          .outOfOrder(true)
+          .load()
         flyWay.migrate()
         ()
       }

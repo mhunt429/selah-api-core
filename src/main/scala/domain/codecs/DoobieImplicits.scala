@@ -1,4 +1,4 @@
-package domain.Meta
+package domain.codecs
 import doobie.Meta
 import doobie.implicits.javasql.TimestampMeta
 import doobie.postgres.*

@@ -5,28 +5,6 @@ import io.circe.generic.semiauto.*
 
 import java.time.{Instant, ZonedDateTime}
 
-object JsonCodecs { // Encoder and Decoder for AppUser
-  implicit val appUserEncoder: Encoder[AppUser] = deriveEncoder[AppUser]
-  implicit val appUserDecoder: Decoder[AppUser] = deriveDecoder[AppUser]
-
-  // Encoder and Decoder for AppUserViewModel
-  implicit val appUserViewModelEncoder: Encoder[AppUserViewModel] =
-    deriveEncoder[AppUserViewModel]
-  implicit val appUserViewModelDecoder: Decoder[AppUserViewModel] =
-    deriveDecoder[AppUserViewModel]
-
-  // Encoder and Decoder for AppUserCreate
-  implicit val appUserCreateEncoder: Encoder[AppUserCreate] =
-    deriveEncoder[AppUserCreate]
-  implicit val appUserCreateDecoder: Decoder[AppUserCreate] =
-    deriveDecoder[AppUserCreate]
-
-  // Encoder and Decoder for AppUserUpdate
-  implicit val appUserUpdateEncoder: Encoder[AppUserUpdate] =
-    deriveEncoder[AppUserUpdate]
-  implicit val appUserUpdateDecoder: Decoder[AppUserUpdate] =
-    deriveDecoder[AppUserUpdate]
-}
 case class AppUser(
     id: Long = 0,
     email: String,
@@ -55,9 +33,9 @@ case class AppUserCreate(
     passwordConfirmation: String,
     phoneNumber: Option[String],
     firstName: String,
-    lastName: String,
-    dateCreated: ZonedDateTime = ZonedDateTime.now(),
-    dateCreatedUtc: Instant = Instant.now()
+    lastName: String
+    // dateCreated: ZonedDateTime = ZonedDateTime.now(),
+    //dateCreatedUtc: Instant = Instant.now()
 )
 
 case class AppUserUpdate(

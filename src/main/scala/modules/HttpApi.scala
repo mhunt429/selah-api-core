@@ -44,6 +44,6 @@ sealed abstract class HttpApi[F[_]: Async] private (
 
     }
   }
-  
+
   val httpApp: HttpApp[IO] = loggers(middleware(routes).orNotFound)
 }
