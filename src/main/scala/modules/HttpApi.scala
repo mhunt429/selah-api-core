@@ -2,7 +2,7 @@ package modules
 
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
-import http.routes.HealthCheckRoutes
+import http.routes.{HealthCheckRoutes, UserRoutes}
 import modules.Services
 import org.http4s.*
 import org.http4s.implicits.*
@@ -10,9 +10,10 @@ import org.http4s.server.Router
 import org.http4s.server.middleware.*
 
 import scala.concurrent.duration.*
+
 object HttpApi {
-  def make[F[_]: Async](services: Services): HttpApi[F] =
-    new HttpApi[F](services) {}
+  def make(services: Services): HttpApi[IO] =
+    new HttpApi[IO](services) {}
 }
 
 sealed abstract class HttpApi[F[_]: Async] private (
@@ -22,8 +23,10 @@ sealed abstract class HttpApi[F[_]: Async] private (
     services.healthCheckService
   ).routes
 
+  private val userRoutes = UserRoutes(services.userService).routes
+
   private val publicRoutes: HttpRoutes[IO] =
-    healthRoutes
+    healthRoutes <+> userRoutes
   private val routes: HttpRoutes[IO] = Router(
     "api/v1" -> publicRoutes
   )
@@ -31,7 +34,7 @@ sealed abstract class HttpApi[F[_]: Async] private (
     { (http: HttpRoutes[IO]) =>
       AutoSlash(http)
     } andThen { (http: HttpRoutes[IO]) =>
-      CORS(http)
+      CORS.policy.withAllowOriginAll(http)
     } andThen { (http: HttpRoutes[IO]) =>
       Timeout(60.seconds)(http)
     }

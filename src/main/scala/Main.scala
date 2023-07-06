@@ -27,8 +27,8 @@ object Main extends IOApp {
       xa <- DatabaseConfig.transactor(conf.db, txnEc)
       _ = DatabaseConfig.initialize(xa).unsafeRunSync()
       repo = Repository.make(xa)
-      services = Services.make(repo)
-      api = HttpApi.make[IO](services)
+      services = Services.make(repo, conf)
+      api = HttpApi.make(services)
       server <- EmberServerBuilder
         .default[IO]
         .withHost(host"0.0.0.0")

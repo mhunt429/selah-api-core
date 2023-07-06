@@ -6,7 +6,7 @@ CREATE TABLE app_user
     password     TEXT,
     first_name   TEXT,
     last_name    TEXT,
-    date_created TIMESTAMP,
+    date_created BIGINT,
     UNIQUE (email),
     UNIQUE (user_name)
 );

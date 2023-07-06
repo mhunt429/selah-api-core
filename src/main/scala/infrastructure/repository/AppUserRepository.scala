@@ -1,17 +1,16 @@
 package infrastructure.repository
 
 import cats.effect.IO
-import domain.codecs.DoobieImplicits.*
 import domain.models.AppUser.*
 import doobie.*
 import doobie.implicits.*
 import fs2.Stream
 
-import java.time.{Instant, ZonedDateTime}
+import java.time.Instant
 
 trait AppUserRepository {
   def createUser(createdUser: AppUserCreate): IO[Long]
-  def getUser(id: Long): IO[Option[AppUserViewModel]]
+  def getUser(id: Long): IO[Option[AppUser]]
 }
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
   private val logger = org.log4s.getLogger
@@ -28,21 +27,24 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
 
   }
 
-  def getUser(id: Long): IO[Option[AppUserViewModel]] = {
+  def getUser(id: Long): IO[Option[AppUser]] = {
     getUserQuery(id)
-      .query[AppUserViewModel]
+      .query[AppUser]
       .option
       .transact(xa)
+      .handleErrorWith(error => {
+        logger.error(s"Postgres response with error => ${error.getMessage}")
+        IO(None)
+      })
   }
 
   private def getUserQuery(id: Long) = {
     sql"""
          SELECT id,
          email,
-         phone_number,
          first_name,
          last_name,
-         date_created WHERE id = $id"""
+         date_created FROM app_user WHERE id = $id"""
   }
   private def createUserSql(createdUser: AppUserCreate) = {
     sql"""
@@ -57,7 +59,7 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
         ${createdUser.password},
         ${createdUser.firstName},
         ${createdUser.lastName},
-        ${ZonedDateTime.now()})
+        ${Instant.now().toEpochMilli})
       """
   }
 

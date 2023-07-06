@@ -1,3 +1,5 @@
+package application
+
 import application.sevices.HealthCheckServiceImpl
 import cats.effect.*
 import cats.effect.unsafe.IORuntime
@@ -7,8 +9,6 @@ import infrastructure.repository.HealthCheckRepository
 import org.log4s.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatestplus.mockito.*
-
 class HealthCheckServiceSpec extends AnyFlatSpec with Matchers {
   private implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
   private val mockHealthCheckRepository = new HealthCheckRepository {

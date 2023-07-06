@@ -1,10 +1,10 @@
 package modules
 import cats.Monad
-import doobie.util.transactor.Transactor
 import cats.effect.*
 import cats.implicits.*
-import infrastructure.repository.HealthCheckRepositoryImpl
 import doobie.implicits.*
+import doobie.util.transactor.Transactor
+import infrastructure.repository.{AppUserRepositoryImpl, HealthCheckRepositoryImpl}
 
 import scala.concurrent.ExecutionContext
 
@@ -15,6 +15,8 @@ object Repository {
   }
 }
 
-class Repository (xa: Transactor[IO]) {
-  val healthCheckRepository: HealthCheckRepositoryImpl = new HealthCheckRepositoryImpl(xa)
+class Repository(xa: Transactor[IO]) {
+  val healthCheckRepository: HealthCheckRepositoryImpl =
+    new HealthCheckRepositoryImpl(xa)
+  val appUserRepository: AppUserRepositoryImpl = new AppUserRepositoryImpl(xa)
 }

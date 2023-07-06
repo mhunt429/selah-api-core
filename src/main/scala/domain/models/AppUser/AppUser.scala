@@ -6,13 +6,11 @@ import io.circe.generic.semiauto.*
 import java.time.{Instant, ZonedDateTime}
 
 case class AppUser(
-    id: Long = 0,
+    id: Long,
     email: String,
-    phoneNumber: Option[String],
     firstName: String,
     lastName: String,
-    dateCreated: ZonedDateTime,
-    dateCreatedUtc: Instant
+    dateCreated: Long
 )
 
 //The view model returns a user but the id is a HashId of the integer value
@@ -20,11 +18,9 @@ case class AppUser(
 case class AppUserViewModel(
     id: String,
     email: String,
-    phoneNumber: Option[String],
     firstName: String,
     lastName: String,
-    dateCreated: ZonedDateTime,
-    dateCreatedUtc: Instant
+    dateCreated: Long
 )
 
 case class AppUserCreate(
@@ -47,7 +43,6 @@ case class AppUserUpdate(
   def merge(originalUser: AppUser): AppUser = {
     originalUser.copy(
       email = email,
-      phoneNumber = phoneNumber,
       firstName = firstName,
       lastName = lastName
     )
