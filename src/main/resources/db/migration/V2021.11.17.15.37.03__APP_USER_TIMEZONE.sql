@@ -1,1 +1,0 @@
-ALTER TABLE app_user ALTER COLUMN date_created TYPE TIMESTAMP ;

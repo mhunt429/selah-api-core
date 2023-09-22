@@ -18,6 +18,6 @@ class Services private (repository: Repository, config: Config) {
     HealthCheckServiceImpl(repository.healthCheckRepository)
   val userService: UserServiceImpl = UserServiceImpl(
     repository.appUserRepository,
-    SecurityService(new Hashids(config.securityConfig.hashIdSalt, 16))
+    SecurityService(new Hashids(config.securityConfig.hashIdSalt, 24))
   )
 }

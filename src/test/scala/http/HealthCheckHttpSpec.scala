@@ -21,7 +21,7 @@ class HealthCheckHttpSpec extends AnyFlatSpec with Matchers {
 
   private val healthCheckUri = uri"/healthcheck"
 
-  "HealthCheckRoutes" should "return 200 connected to PostgreSQL" in {
+  "HealthCheckRoutes" should "return 200 when connected to PostgreSQL" in {
     val req = GET(healthCheckUri)
     val routes = HealthCheckRoutes(mockHealthCheckService).routes
     val response = routes.run(req)

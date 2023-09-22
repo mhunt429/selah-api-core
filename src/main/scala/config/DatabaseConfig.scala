@@ -44,4 +44,20 @@ object DatabaseConfig {
       }
     }
   }
+
+  //DROPS the entire schema during integration test cycles so that data can be isolated to a single test cycle
+  def cleanSchema(transactor: HikariTransactor[IO]): IO[Unit] = {
+    transactor.configure { dataSource =>
+      IO {
+        val flyWay = Flyway
+          .configure()
+          .mixed(true)
+          .dataSource(dataSource)
+          .outOfOrder(true)
+          .load()
+        flyWay.clean()
+        ()
+      }
+    }
+  }
 }
