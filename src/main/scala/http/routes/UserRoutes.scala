@@ -28,13 +28,16 @@ final case class UserRoutes(
 
     case req @ POST -> Root =>
       req
-        .as[AppUserCreate]
-        .flatMap(user =>
-          userService.createUser(user).flatMap {
-            case id: String => Ok(id)
-            case _          => InternalServerError()
+        .decode[AppUserCreate] { user =>
+          userService.getUserByEmail(user.email).flatMap {
+            case Some(_) => BadRequest() //TODO require recaptcha
+            case _ =>
+              userService.createUser(user).flatMap {
+                case id: String => Ok(id)
+                case _          => InternalServerError()
+              }
           }
-        )
+        }
   }
   val routes: HttpRoutes[IO] = Router(
     prefixPath -> httpRoutes

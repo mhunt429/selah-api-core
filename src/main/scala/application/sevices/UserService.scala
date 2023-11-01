@@ -1,7 +1,11 @@
 package application.sevices
+import cats.data.*
+import cats.data.Validated.*
 import cats.effect.IO
 import cats.effect.unsafe.implicits.global
+import cats.implicits.*
 import domain.models.AppUser.{AppUserCreate, AppUserViewModel}
+import domain.models.validation.ValidationResult
 import domain.validation.ValidationErrors
 import infrastructure.repository.AppUserRepository
 import org.hashids.Hashids
@@ -10,6 +14,8 @@ import scala.util.matching.Regex
 trait UserService {
   def getUser(id: String): IO[Option[AppUserViewModel]]
   def createUser(user: AppUserCreate): IO[String]
+
+  def getUserByEmail(email: String): IO[Option[String]]
 }
 class UserServiceImpl(
     appUserRepository: AppUserRepository,
@@ -44,16 +50,18 @@ class UserServiceImpl(
     }
   }
 
+   def getUserByEmail(email: String): IO[Option[String]] = appUserRepository.getUserByEmail(email)
+
   private def validateUser(userCreate: AppUserCreate): Seq[String] = {
     Seq("")
   }
 
-  private def validateEmail(email: String): Option[String] = {
-    val emailPattern: Regex = """^(\w+)@(\w+(.\w+)+)$""".r
-    email match {
-      case emailPattern => None
-      case _            => Some(ValidationErrors.invalidEmail)
-    }
+  private def validateEmail(email: String): Validated[ValidationResult, String] =
+    Either
+      .cond(email.matches("""^(\w+)@(\w+(.\w+)+)$"""),
+        email,
+        ValidationResult(ValidationErrors.invalidEmail))
+      .toValidated
   }
 
   private def validateFirstName(firstName: String): Option[String] = {
@@ -86,4 +94,4 @@ class UserServiceImpl(
       case _    => Some(ValidationErrors.passwordAndConfirmationMismatch)
     }
   }
-}
+
