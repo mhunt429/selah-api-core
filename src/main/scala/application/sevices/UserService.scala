@@ -52,9 +52,10 @@ class UserServiceImpl(
 
    def getUserByEmail(email: String): IO[Option[String]] = appUserRepository.getUserByEmail(email)
 
-  private def validateUser(userCreate: AppUserCreate): Seq[String] = {
-    Seq("")
+  private def validateUser(userCreate: AppUserCreate): List[String] = {
+     List.empty
   }
+
 
   private def validateEmail(email: String): Validated[ValidationResult, String] =
     Either

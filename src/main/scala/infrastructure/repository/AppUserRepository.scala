@@ -4,24 +4,21 @@ import cats.effect.IO
 import domain.models.AppUser.*
 import doobie.*
 import doobie.implicits.*
-import fs2.Stream
-
+import domain.codecs.DoobieImplicits.*
 import java.time.{Instant, ZoneId}
 
 trait AppUserRepository {
-  def createUser(createdUser: AppUserCreate): IO[Long]
-  def getUser(id: Long): IO[Option[AppUser]]
+  def createUser(createdUser: AppUserCreate) : IO[Long]
+  def getUser(id: Long) : IO[Option[AppUser]]
 
   def getUserByEmail(email: String): IO[Option[String]]
 }
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
   private val logger = org.log4s.getLogger
+  
   def createUser(createdUser: AppUserCreate): IO[Long] = {
-    createUserSql(createdUser).update
-      .withGeneratedKeys[Long]("id")
-      .compile
-      .lastOrError
-      .transact(xa)
+    BaseRepository
+      .insertWithId(xa, createUserSql(createdUser))
       .handleErrorWith(error => {
         logger.error(s"Postgres response with error => ${error.getMessage}")
         IO(0)
@@ -30,10 +27,8 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
   }
 
   def getUser(id: Long): IO[Option[AppUser]] = {
-    getUserQuery(id)
-      .query[AppUser]
-      .option
-      .transact(xa)
+    BaseRepository
+      .get[AppUser](xa, getUserQuery(id))
       .handleErrorWith(error => {
         logger.error(s"Postgres response with error => ${error.getMessage}")
         IO(None)
