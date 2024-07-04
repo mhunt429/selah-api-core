@@ -1,0 +1,21 @@
+server:
+  http_listen_port: 8080  # Adjust the port as necessary
+
+positions:
+  filename: /tmp/positions.yaml  # Store position logs
+
+scrape_configs:
+  - job_name: local
+    static_configs:
+      - targets:
+          - localhost:8080  # Match the port specified in server.http_listen_port
+    pipeline_stages:
+      - match:
+          selector: '{job="local"}'
+          action: drop
+
+    relabel_configs:
+      - source_labels: [ '__path__' ]
+        action: replace
+        target_label: '__path__'
+        regex: "(.*)"

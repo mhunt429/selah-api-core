@@ -1,3 +1,7 @@
+import sbt.*
+import sbt.Keys.*
+import sbt.librarymanagement.Resolver
+
 lazy val root = project
   .in(file("."))
   .enablePlugins(RevolverPlugin)
@@ -5,8 +9,11 @@ lazy val root = project
     name := "selah-api",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
-    resolvers += Resolver.mavenCentral,
+    resolvers ++= Seq(
+      Resolver.mavenCentral
+    ),
     libraryDependencies ++= Seq(
+      // Your existing dependencies
       "org.scalameta" %% "munit" % "0.7.29" % Test,
       "ch.qos.logback" % "logback-classic" % LogbackVersion,
       "org.typelevel" %% "cats-core" % catsVersion,
@@ -34,9 +41,11 @@ lazy val root = project
       "org.scalatest" %% "scalatest" % "3.2.15" % Test,
       "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
       "io.prometheus" % "simpleclient" % prometheusVersion,
-      "io.prometheus" % "simpleclient_common" % prometheusVersion
+      "io.prometheus" % "simpleclient_common" % prometheusVersion,
+      "com.github.loki4j" % "loki-logback-appender" % "1.5.1"
     )
   )
+
 val scala3Version = "3.3.0"
 val LogbackVersion = "1.4.7"
 val catsEffectVersion = "3.5.0"

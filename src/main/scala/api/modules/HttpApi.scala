@@ -1,5 +1,6 @@
 package api.modules
 
+import api.middleware.MetricsMiddleware
 import api.routes.{HealthCheckRoutes, MetricsRoutes, UserRoutes}
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
@@ -55,6 +56,6 @@ sealed abstract class HttpApi[F[_]: Async] private (
     }
   }
 
-  val httpApp: HttpApp[IO] = loggers(middleware(routes).orNotFound)
+  val httpApp: HttpApp[IO] = loggers(middleware(MetricsMiddleware(routes)).orNotFound)
   
 }
