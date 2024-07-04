@@ -1,21 +1,13 @@
-import cats.Monad
+import api.modules.{HttpApi, Repository, Services}
 import cats.effect.*
 import cats.effect.unsafe.IORuntime
-import cats.implicits.*
 import com.comcast.ip4s.{host, port}
-import config.*
-import domain.json.ConfigJson.*
+import core.config.{Config, DatabaseConfig}
 import doobie.ExecutionContexts
 import io.circe.config.parser
-import modules.*
 import org.http4s.ember.server.EmberServerBuilder
-import org.http4s.server.Server
-import org.http4s.server.defaults.Banner
-import org.http4s.server.middleware.{CORS, CORSPolicy}
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
-
-import scala.concurrent.ExecutionContext
+import org.http4s.server.middleware.CORS
+import core.json.ConfigJson.*
 
 object Main extends IOApp {
   private implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global

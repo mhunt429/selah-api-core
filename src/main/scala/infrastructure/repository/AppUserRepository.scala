@@ -1,10 +1,11 @@
 package infrastructure.repository
 
 import cats.effect.IO
-import domain.models.AppUser.*
+import core.models.AppUser.*
 import doobie.*
 import doobie.implicits.*
-import domain.codecs.DoobieImplicits.*
+import core.models.AppUser.{AppUser, AppUserCreate}
+
 import java.time.{Instant, ZoneId}
 
 trait AppUserRepository {

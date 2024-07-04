@@ -1,10 +1,10 @@
 package http
 
+import api.routes.HealthCheckRoutes
 import application.sevices.HealthCheckService
 import cats.effect.*
 import cats.effect.unsafe.IORuntime
-import domain.HealthCheck.{HealthCheck, PostgreSQL}
-import http.routes.HealthCheckRoutes
+import core.models.{HealthCheck, PostgreSQL}
 import org.http4s.*
 import org.http4s.Method.*
 import org.http4s.client.dsl.io.*

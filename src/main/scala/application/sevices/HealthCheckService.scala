@@ -3,7 +3,7 @@ package application.sevices
 import cats.effect.*
 import cats.effect.implicits.*
 import cats.syntax.all.*
-import domain.HealthCheck.{HealthCheck, PostgreSQL}
+import core.models.{HealthCheck, PostgreSQL}
 import infrastructure.repository.HealthCheckRepository
 import org.log4s.*
 

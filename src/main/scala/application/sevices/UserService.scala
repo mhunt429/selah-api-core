@@ -1,16 +1,12 @@
 package application.sevices
 import cats.data.*
-import cats.data.Validated.*
 import cats.effect.IO
-import cats.effect.unsafe.implicits.global
 import cats.implicits.*
-import domain.models.AppUser.{AppUserCreate, AppUserViewModel}
-import domain.models.validation.ValidationResult
-import domain.validation.ValidationErrors
+import core.models.AppUser.{AppUserCreate, AppUserViewModel}
+import core.models.validation.ValidationResult
+import core.validation.ValidationErrors
 import infrastructure.repository.AppUserRepository
-import org.hashids.Hashids
-
-import scala.util.matching.Regex
+import core.codecs.DoobieImplicits.*
 trait UserService {
   def getUser(id: String): IO[Option[AppUserViewModel]]
   def createUser(user: AppUserCreate): IO[String]
@@ -23,19 +19,15 @@ class UserServiceImpl(
 ) extends UserService {
 
   def createUser(user: AppUserCreate): IO[String] = {
-    for {
-      userId <- appUserRepository.createUser(user)
-      hashId <- securityService.encodeHashId(userId)
-    } yield hashId
+    appUserRepository.createUser(user).map {
+      case 0 => ""
+      case id => securityService.encodeHashId(id)
+    }
   }
 
   def getUser(id: String): IO[Option[AppUserViewModel]] = {
-    val user = for {
-      decodedId <- securityService.decodeHashId(id)
-      user <- appUserRepository.getUser(decodedId)
-    } yield (user)
-
-    user.map {
+    val decodedId: Long = securityService.decodeHashId(id)
+    appUserRepository.getUser(decodedId).map {
       case Some(u) =>
         Some(
           AppUserViewModel(

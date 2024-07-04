@@ -1,9 +1,11 @@
 lazy val root = project
   .in(file("."))
+  .enablePlugins(RevolverPlugin)
   .settings(
     name := "selah-api",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
+    resolvers += Resolver.mavenCentral,
     libraryDependencies ++= Seq(
       "org.scalameta" %% "munit" % "0.7.29" % Test,
       "ch.qos.logback" % "logback-classic" % LogbackVersion,
@@ -30,7 +32,9 @@ lazy val root = project
       "org.flywaydb" % "flyway-core" % flywayVersion,
       "org.log4s" %% "log4s" % "1.10.0",
       "org.scalatest" %% "scalatest" % "3.2.15" % Test,
-      "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test
+      "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
+      "io.prometheus" % "simpleclient" % prometheusVersion,
+      "io.prometheus" % "simpleclient_common" % prometheusVersion
     )
   )
 val scala3Version = "3.3.0"
@@ -45,3 +49,4 @@ val skunkVersion = "0.6.0"
 val fs2Version = "3.7.0"
 val doobieVersion = "1.0.0-RC4"
 val flywayVersion = "9.16.0"
+val prometheusVersion = "0.16.0"

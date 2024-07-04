@@ -4,7 +4,7 @@ import application.sevices.HealthCheckServiceImpl
 import cats.effect.*
 import cats.effect.unsafe.IORuntime
 import cats.syntax.all.*
-import domain.HealthCheck.{HealthCheck, PostgreSQL}
+import core.models.{HealthCheck, PostgreSQL}
 import infrastructure.repository.HealthCheckRepository
 import org.log4s.*
 import org.scalatest.flatspec.AnyFlatSpec
