@@ -18,7 +18,7 @@ final case class MetricsRoutes(registry: CollectorRegistry)
     case GET -> Root =>
       val writer = new StringWriter()
       TextFormat.write004(writer, registry.metricFamilySamples())
-      Ok(writer.toString())
+      Ok(writer.toString)
         .map(_.withContentType(headers.`Content-Type`(MediaType.text.plain)))
   }
 

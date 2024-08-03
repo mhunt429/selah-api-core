@@ -1,12 +1,11 @@
 package application.sevices
-import cats.data.*
+import cats.data.{Validated, ValidatedNel}
 import cats.effect.IO
 import cats.implicits.*
 import core.models.AppUser.{AppUserCreate, AppUserViewModel}
-import core.models.validation.ValidationResult
-import core.validation.ValidationErrors
+import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
-import core.codecs.DoobieImplicits.*
+
 trait UserService {
   def getUser(id: String): IO[Option[AppUserViewModel]]
   def createUser(user: AppUserCreate): IO[String]
@@ -20,7 +19,7 @@ class UserServiceImpl(
 
   def createUser(user: AppUserCreate): IO[String] = {
     appUserRepository.createUser(user).map {
-      case 0 => ""
+      case 0  => ""
       case id => securityService.encodeHashId(id)
     }
   }
@@ -42,49 +41,62 @@ class UserServiceImpl(
     }
   }
 
-   def getUserByEmail(email: String): IO[Option[String]] = appUserRepository.getUserByEmail(email)
+  def getUserByEmail(email: String): IO[Option[String]] =
+    appUserRepository.getUserByEmail(email)
 
-  private def validateUser(userCreate: AppUserCreate): List[String] = {
-     List.empty
+  private def validateUser(
+      userCreate: AppUserCreate
+                          ): ValidatedNel[ValidationError, AppUserCreate] = {
+    (
+      validateEmail(userCreate.email).toValidatedNel,
+      validateFirstName(userCreate.firstName).toValidatedNel,
+      validateLastName(userCreate.lastName).toValidatedNel,
+      validatePassword(userCreate.password).toValidatedNel,
+      validatePasswordAndConfirmation(
+        userCreate.password,
+        userCreate.passwordConfirmation
+      ).toValidatedNel
+    ).mapN { (_, _, _, _, _) => userCreate }
   }
 
-
-  private def validateEmail(email: String): Validated[ValidationResult, String] =
+  private def validateEmail(
+      email: String
+  ): Validated[ValidationError, String] =
     Either
-      .cond(email.matches("""^(\w+)@(\w+(.\w+)+)$"""),
+      .cond(
+        email.matches("""^(\w+)@(\w+(.\w+)+)$"""),
         email,
-        ValidationResult(ValidationErrors.invalidEmail))
+        ValidationErrors.InvalidEmail
+      )
       .toValidated
-  }
 
-  private def validateFirstName(firstName: String): Option[String] = {
-    firstName.trim match {
-      case "" => Some(ValidationErrors.firstNameNotEmpty)
-      case _  => None
-    }
-  }
+  private def validateFirstName(
+      firstName: String
+  ): Validated[ValidationError, String] =
+    Option
+      .when(firstName.trim.nonEmpty)(firstName)
+      .toValid(ValidationErrors.FirstNameNotEmpty)
 
-  private def validateLastName(lastName: String): Option[String] = {
-    lastName.trim match {
-      case "" => Some(ValidationErrors.lastNameNotEmpty)
-      case _  => None
-    }
-  }
+  private def validateLastName(
+      lastName: String
+  ): Validated[ValidationError, String] =
+    Option
+      .when(lastName.trim.nonEmpty)(lastName)
+      .toValid(ValidationErrors.LastNameNotEmpty)
 
-  private def validatePassword(password: String): Option[String] = {
-    password.trim match {
-      case "" => Some(ValidationErrors.passwordNotEmpty)
-      case _  => None
-    }
-  }
+  private def validatePassword(
+      password: String
+  ): Validated[ValidationError, String] =
+    Option
+      .when(password.trim.nonEmpty)(password)
+      .toValid(ValidationErrors.PasswordNotEmpty)
 
   private def validatePasswordAndConfirmation(
       password: String,
       passwordConfirmation: String
-  ): Option[String] = {
-    password == passwordConfirmation match {
-      case true => None
-      case _    => Some(ValidationErrors.passwordAndConfirmationMismatch)
-    }
-  }
-
+  ): Validated[ValidationError, Unit] =
+    if (password == passwordConfirmation)
+      ().valid
+    else
+      ValidationErrors.PasswordAndConfirmationMismatch.invalid
+}
