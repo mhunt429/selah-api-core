@@ -1,14 +1,19 @@
 package application.sevices
-import cats.data.{Validated, ValidatedNel}
+import cats.data.Validated.{Invalid, Valid}
+import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.effect.IO
 import cats.implicits.*
 import core.models.AppUser.{AppUserCreate, AppUserViewModel}
 import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
 
+import java.time.Instant
+
 trait UserService {
   def getUser(id: String): IO[Option[AppUserViewModel]]
-  def createUser(user: AppUserCreate): IO[String]
+  def createUser(
+      user: AppUserCreate
+  ): IO[Either[List[String], AppUserViewModel]]
 
   def getUserByEmail(email: String): IO[Option[String]]
 }
@@ -17,10 +22,26 @@ class UserServiceImpl(
     securityService: SecurityService
 ) extends UserService {
 
-  def createUser(user: AppUserCreate): IO[String] = {
-    appUserRepository.createUser(user).map {
-      case 0  => ""
-      case id => securityService.encodeHashId(id)
+  def createUser(
+      user: AppUserCreate
+  ): IO[Either[List[String], AppUserViewModel]] = {
+    validateUser(user) match {
+      case Valid(u) =>
+        appUserRepository
+          .createUser(user)
+          .map(createdId => {
+            Right(
+              AppUserViewModel(
+                id = securityService.encodeHashId(createdId),
+                email = user.email,
+                firstName = user.firstName,
+                lastName = user.lastName,
+                dateCreated = Instant.now().toEpochMilli
+              )
+            )
+          })
+      case Invalid(errors) =>
+        IO.pure(Left(errors.toList.map(_.message)))
     }
   }
 
@@ -46,7 +67,7 @@ class UserServiceImpl(
 
   private def validateUser(
       userCreate: AppUserCreate
-                          ): ValidatedNel[ValidationError, AppUserCreate] = {
+  ): ValidatedNel[ValidationError, AppUserCreate] = {
     (
       validateEmail(userCreate.email).toValidatedNel,
       validateFirstName(userCreate.firstName).toValidatedNel,

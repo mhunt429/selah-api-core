@@ -5,7 +5,6 @@ import cats.effect.IO
 import core.json.UserJson.*
 import core.models.AppUser.{AppUserCreate, AppUserViewModel}
 import io.circe.*
-import io.circe.generic.semiauto.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.jsonOf
 import org.http4s.dsl.Http4sDsl
@@ -33,8 +32,8 @@ final case class UserRoutes(
             case Some(_) => BadRequest() //TODO require recaptcha
             case _ =>
               userService.createUser(user).flatMap {
-                case id: String => Ok(id)
-                case _          => InternalServerError()
+                case Right(id)              => Ok(id)
+                case Left(validationErrors) => BadRequest(validationErrors)
               }
           }
         }
