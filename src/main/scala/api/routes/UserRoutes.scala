@@ -8,37 +8,43 @@ import io.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.jsonOf
 import org.http4s.dsl.Http4sDsl
-import org.http4s.server.Router
-import org.http4s.{EntityDecoder, HttpRoutes}
+import org.http4s.server.{AuthMiddleware, Router}
+import org.http4s.{AuthedRoutes, EntityDecoder, HttpRoutes}
 
 final case class UserRoutes(
     userService: UserService
 ) extends Http4sDsl[IO] {
+
   implicit val decoder: EntityDecoder[IO, AppUserCreate] =
     jsonOf[IO, AppUserCreate]
-  private[routes] val prefixPath = "/users"
-  private val httpRoutes: HttpRoutes[IO] = HttpRoutes.of[IO] {
 
-    case GET -> Root / id =>
+  private[routes] val prefixPath = "/users"
+
+  // Update to use AuthedRoutes with the authMiddleware applied
+  private val authedRoutes: AuthedRoutes[String, IO] = AuthedRoutes.of {
+
+    // Authenticated GET route
+    case GET -> Root / id as user =>
       userService.getUser(id).flatMap {
-        case Some(user) => Ok(user)
-        case _          => NotFound()
+        case Some(userData) => Ok(userData)
+        case None           => NotFound()
       }
 
-    case req @ POST -> Root =>
-      req
-        .decode[AppUserCreate] { user =>
-          userService.getUserByEmail(user.email).flatMap {
-            case Some(_) => BadRequest() //TODO require recaptcha
-            case _ =>
-              userService.createUser(user).flatMap {
-                case Right(id)              => Ok(id)
-                case Left(validationErrors) => BadRequest(validationErrors)
-              }
-          }
+    case req @ POST -> Root as user =>
+      req.req.decode[AppUserCreate] { newUser =>
+        userService.getUserByEmail(newUser.email).flatMap {
+          case Some(_) => BadRequest() // Require recaptcha in future
+          case None =>
+            userService.createUser(newUser).flatMap {
+              case Right(id)              => Ok(id)
+              case Left(validationErrors) => BadRequest(validationErrors)
+            }
         }
+      }
   }
-  val routes: HttpRoutes[IO] = Router(
-    prefixPath -> httpRoutes
-  )
+
+  // Combine routes with middleware
+  def routes(authMiddleware: AuthMiddleware[IO, String]): HttpRoutes[IO] = {
+    Router(prefixPath -> authMiddleware(authedRoutes))
+  }
 }

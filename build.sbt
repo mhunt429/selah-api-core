@@ -42,7 +42,8 @@ lazy val root = project
       "org.scalatestplus" %% "mockito-3-4" % "3.2.10.0" % Test,
       "io.prometheus" % "simpleclient" % prometheusVersion,
       "io.prometheus" % "simpleclient_common" % prometheusVersion,
-      "com.github.loki4j" % "loki-logback-appender" % "1.5.1"
+      "com.github.loki4j" % "loki-logback-appender" % "1.5.1",
+      "com.auth0" % "java-jwt" % "4.4.0"
     )
   )
 

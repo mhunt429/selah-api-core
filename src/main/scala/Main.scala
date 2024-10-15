@@ -20,7 +20,7 @@ object Main extends IOApp {
       _ = DatabaseConfig.initialize(xa).unsafeRunSync()
       repo = Repository.make(xa)
       services = Services.make(repo, conf)
-      api = HttpApi.make(services)
+      api = HttpApi.make(services, conf)
       server <- EmberServerBuilder
         .default[IO]
         .withHost(host"0.0.0.0")

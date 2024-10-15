@@ -1,41 +1,45 @@
 package api.modules
 
-import api.middleware.MetricsMiddleware
+import api.middleware.{JwtMiddleware, MetricsMiddleware}
 import api.routes.{HealthCheckRoutes, MetricsRoutes, UserRoutes}
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
+import core.config.Config
 import io.prometheus.client.CollectorRegistry
 import org.http4s.*
 import org.http4s.implicits.*
-import org.http4s.server.Router
 import org.http4s.server.middleware.*
+import org.http4s.server.{AuthMiddleware, Router}
 
 import scala.concurrent.duration.*
 
 object HttpApi {
-  def make(services: Services): HttpApi[IO] =
-    new HttpApi[IO](services) {}
+  def make(services: Services, config: Config): HttpApi[IO] =
+    new HttpApi[IO](services, config) {}
 }
 
 sealed abstract class HttpApi[F[_]: Async] private (
-    services: Services
+    services: Services,
+    config: Config
 ) {
   private val healthRoutes = HealthCheckRoutes(
     services.healthCheckService
   ).routes
 
-  private val userRoutes = UserRoutes(services.userService).routes
-
   private val registry: CollectorRegistry = CollectorRegistry.defaultRegistry
   private val metricsRoutes = MetricsRoutes(registry).routes
 
+  val authMiddleware: AuthMiddleware[IO, String] = JwtMiddleware(config)
+
   private val publicRoutes: HttpRoutes[IO] =
-    healthRoutes <+> userRoutes <+> metricsRoutes
+    healthRoutes <+> metricsRoutes
+
+  private val userRoutes: HttpRoutes[IO] =
+    UserRoutes(services.userService).routes(authMiddleware)
 
   private val routes: HttpRoutes[IO] = Router(
-    "api/" -> publicRoutes,
-    "" -> healthRoutes,
-    "" -> metricsRoutes
+    "api/" -> (publicRoutes <+> userRoutes),
+    "" -> (healthRoutes <+> metricsRoutes)
   )
 
   private val middleware: HttpRoutes[IO] => HttpRoutes[IO] = {
@@ -56,6 +60,8 @@ sealed abstract class HttpApi[F[_]: Async] private (
     }
   }
 
-  val httpApp: HttpApp[IO] = loggers(middleware(MetricsMiddleware(routes)).orNotFound)
-  
+  val httpApp: HttpApp[IO] = loggers(
+    middleware(MetricsMiddleware(routes)).orNotFound
+  )
+
 }
