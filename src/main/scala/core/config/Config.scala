@@ -6,4 +6,8 @@ final case class Config(
     securityConfig: SecurityConfig
 )
 
-final case class SecurityConfig(hashIdSalt: String, jwtSecret: String)
+final case class SecurityConfig(
+    hashIdSalt: String,
+    jwtSecret: String,
+    cryptoSecret: String //General Secret for AES encryption
+)

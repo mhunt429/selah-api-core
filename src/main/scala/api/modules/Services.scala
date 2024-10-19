@@ -1,7 +1,6 @@
 package api.modules
 
 import application.sevices.{HealthCheckServiceImpl, SecurityService, UserServiceImpl}
-import cats.effect.*
 import core.config.Config
 import org.hashids.Hashids
 //Dependency injection for application service layer
@@ -17,6 +16,7 @@ class Services private (repository: Repository, config: Config) {
 
   val healthCheckService: HealthCheckServiceImpl =
     HealthCheckServiceImpl(repository.healthCheckRepository)
+
   val userService: UserServiceImpl = UserServiceImpl(
     repository.appUserRepository,
     securityService

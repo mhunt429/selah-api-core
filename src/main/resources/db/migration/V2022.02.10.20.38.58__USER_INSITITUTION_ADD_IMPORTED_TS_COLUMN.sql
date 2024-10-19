@@ -1,1 +1,0 @@
-ALTER TABLE user_institution ADD COLUMN imported_ts TIMESTAMP;
