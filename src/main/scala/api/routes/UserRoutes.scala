@@ -3,7 +3,7 @@ package api.routes
 import application.sevices.UserService
 import cats.effect.IO
 import core.json.UserJson.*
-import core.models.AppUser.{AppUserCreate, AppUserViewModel}
+import core.models.AppUser.DataTransfer.AppUserCreate
 import io.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.jsonOf

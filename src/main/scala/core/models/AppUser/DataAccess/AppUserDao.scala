@@ -8,7 +8,7 @@ case class AppUser(
     appLastChangedBy: Long,
     id: Long,
     accountId: Long,
-    createdEpoch: Option[Long],
+    createdEpoch: Long,
     encryptedEmail: Array[Byte],
     username: String,
     password: String,

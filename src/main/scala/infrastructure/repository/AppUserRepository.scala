@@ -2,9 +2,10 @@ package infrastructure.repository
 
 import cats.effect.IO
 import core.models.AppUser.*
+import core.models.AppUser.DataAccess.AppUser
+import core.models.AppUser.DataTransfer.AppUserCreate
 import doobie.*
 import doobie.implicits.*
-import core.models.AppUser.{AppUser, AppUserCreate}
 
 import java.time.{Instant, ZoneId}
 

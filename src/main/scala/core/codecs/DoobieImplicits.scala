@@ -1,6 +1,6 @@
 package core.codecs
 
-import core.models.AppUser.AppUser
+import core.models.AppUser.DataAccess.AppUser
 import doobie.postgres.*
 import doobie.{Meta, Read, Write}
 
@@ -12,28 +12,97 @@ object DoobieImplicits {
     Meta[String].imap[UUID](UUID.fromString)(_.toString)
 
   implicit val appUserRead: Read[AppUser] =
-    Read[(Long, String, String, String, Long)].map {
-      case (id, email, firstName, lastName, dateCreated) =>
+    Read[
+      (
+          Long,
+          Long,
+          Long,
+          Long,
+          Long,
+         Long,
+          Array[Byte],
+          String,
+          String,
+          Array[Byte],
+          Array[Byte],
+          Option[Long],
+          Option[String],
+          Option[Boolean],
+          Option[Boolean]
+      )
+    ].map {
+      case (
+            originalInsertEpoch,
+            lastUpdateEpoch,
+            appLastChangedBy,
+            id,
+            accountId,
+            createdEpoch,
+            encryptedEmail,
+            username,
+            password,
+            encryptedName,
+            encryptedPhone,
+            lastLoginEpoch,
+            lastLoginIp,
+            phoneVerified,
+            emailVerified
+          ) =>
         AppUser(
+          originalInsertEpoch,
+          lastUpdateEpoch,
+          appLastChangedBy,
           id,
-          email,
-          firstName,
-          lastName,
-          dateCreated
+          accountId,
+          createdEpoch,
+          encryptedEmail,
+          username,
+          password,
+          encryptedName,
+          encryptedPhone,
+          lastLoginEpoch,
+          lastLoginIp,
+          phoneVerified,
+          emailVerified
         )
     }
 
   implicit val appUserWrite: Write[AppUser] =
-    Write[(Long, String, String, String, Long)].contramap(user =>
-      (user.id, user.email, user.firstName, user.lastName, user.dateCreated)
-    )
-  /*implicit val zonedDateTimeMeta: Meta[ZonedDateTime] =
-    Meta[Timestamp].timap(timestamp => ZonedDateTime.from(timestamp.toInstant))(
-      zonedDateTime => Timestamp.from(zonedDateTime.toInstant)
-    )*/
-
-  /*implicit val instantMeta: Meta[Instant] =
-    Meta[Timestamp].timap(timestamp => timestamp.toInstant)(instant =>
-      Timestamp.from(instant)
-    )*/
+    Write[
+      (
+          Long,
+          Long,
+          Long,
+          Long,
+          Long,
+         Long,
+          Array[Byte],
+          String,
+          String,
+          Array[Byte],
+          Array[Byte],
+          Option[Long],
+          Option[String],
+          Option[Boolean],
+          Option[Boolean]
+      )
+    ].contramap { user =>
+      (
+        user.originalInsertEpoch,
+        user.lastUpdateEpoch,
+        user.appLastChangedBy,
+        user.id,
+        user.accountId,
+        user.createdEpoch,
+        user.encryptedEmail,
+        user.username,
+        user.password,
+        user.encryptedName,
+        user.encryptedPhone,
+        user.lastLoginEpoch,
+        user.lastLoginIp,
+        user.phoneVerified,
+        user.emailVerified
+      )
+    }
 }

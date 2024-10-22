@@ -3,7 +3,7 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.effect.IO
 import cats.implicits.*
-import core.models.AppUser.{AppUserCreate, AppUserViewModel}
+import core.models.AppUser.DataTransfer.{AppUserCreate, AppUserViewModel}
 import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
 
@@ -33,8 +33,11 @@ class UserServiceImpl(
             Right(
               AppUserViewModel(
                 id = securityService.encodeHashId(createdId),
+                accountId = securityService.encodeHashId(createdId),
+                username = "",
                 email = user.email,
                 firstName = user.firstName,
+                phone = user.phone,
                 lastName = user.lastName,
                 dateCreated = Instant.now().toEpochMilli
               )
@@ -49,13 +52,18 @@ class UserServiceImpl(
     val decodedId: Long = securityService.decodeHashId(id)
     appUserRepository.getUser(decodedId).map {
       case Some(u) =>
+        val fullName = securityService.decrypt(u.encryptedName)
+        val splitName = fullName.split("|")
         Some(
           AppUserViewModel(
             id = id,
-            email = u.email,
-            firstName = u.firstName,
-            lastName = u.lastName,
-            dateCreated = u.dateCreated
+            accountId = securityService.encodeHashId(u.accountId),
+            email = securityService.decrypt(u.encryptedEmail),
+            username = u.username,
+            firstName = splitName.head,
+            lastName = splitName.last,
+            phone = securityService.decrypt(u.encryptedPhone),
+            dateCreated = u.createdEpoch,
           )
         )
       case _ => None

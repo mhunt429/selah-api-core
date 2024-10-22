@@ -9,5 +9,6 @@ final case class Config(
 final case class SecurityConfig(
     hashIdSalt: String,
     jwtSecret: String,
-    cryptoSecret: String //General Secret for AES encryption
+    cryptoSecret: String, //General Secret for AES encryption
+    cryptoIv: String
 )
