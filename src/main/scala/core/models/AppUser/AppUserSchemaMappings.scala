@@ -1,25 +1,22 @@
-package core.codecs
+package core.models.AppUser
 
-import core.models.AppUser.DataAccess.AppUser
-import doobie.postgres.*
-import doobie.{Meta, Read, Write}
+import doobie.postgres.implicits.*
+import doobie.{Meta, Read}
 
-import java.time.{Instant, LocalDateTime, ZonedDateTime}
-import java.util.UUID
+import java.time.Instant
 
-object DoobieImplicits {
-  implicit val uuidMeta: Meta[UUID] =
-    Meta[String].imap[UUID](UUID.fromString)(_.toString)
+//Implicit types to serialize SQL Doobie queries to User Data Access Objects
+object AppUserSchemaMappings {
 
   implicit val appUserRead: Read[AppUser] =
     Read[
       (
+          Instant,
           Long,
           Long,
           Long,
           Long,
           Long,
-         Long,
           Array[Byte],
           String,
           String,
@@ -67,42 +64,4 @@ object DoobieImplicits {
         )
     }
 
-  implicit val appUserWrite: Write[AppUser] =
-    Write[
-      (
-          Long,
-          Long,
-          Long,
-          Long,
-          Long,
-         Long,
-          Array[Byte],
-          String,
-          String,
-          Array[Byte],
-          Array[Byte],
-          Option[Long],
-          Option[String],
-          Option[Boolean],
-          Option[Boolean]
-      )
-    ].contramap { user =>
-      (
-        user.originalInsertEpoch,
-        user.lastUpdateEpoch,
-        user.appLastChangedBy,
-        user.id,
-        user.accountId,
-        user.createdEpoch,
-        user.encryptedEmail,
-        user.username,
-        user.password,
-        user.encryptedName,
-        user.encryptedPhone,
-        user.lastLoginEpoch,
-        user.lastLoginIp,
-        user.phoneVerified,
-        user.emailVerified
-      )
-    }
 }

@@ -1,9 +1,9 @@
-package core.models.AppUser.DataAccess
+package core.models.AppUser
 
 import java.time.Instant
 
 case class AppUser(
-    originalInsertEpoch: Long,
+    originalInsertEpoch: Instant,
     lastUpdateEpoch: Long,
     appLastChangedBy: Long,
     id: Long,

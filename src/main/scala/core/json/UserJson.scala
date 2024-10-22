@@ -2,8 +2,6 @@ package core.json
 
 
 import core.models.AppUser.*
-import core.models.AppUser.DataAccess.{AppUser, AppUserUpdate}
-import core.models.AppUser.DataTransfer.{AppUserCreate, AppUserViewModel}
 import io.circe.*
 import io.circe.generic.semiauto.*
 

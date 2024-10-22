@@ -19,7 +19,7 @@ class SecurityService(hashService: Hashids, config: Config) {
     2 * 60 * 60 * 1000 // 2 hours in milliseconds
   private final val ALGO = Algorithm.HMAC256(SECRET)
   private final val AES_KEY =
-    config.securityConfig.cryptoIv // AES key from config
+    config.securityConfig.cryptoSecret // AES key from config
   private final val AES_IV = generateIv() // Generate IV or get from config
   final lazy val VERIFIER = JWT.require(ALGO).withIssuer(ISSUER).build()
   private final val CRYPTO_CIPHER = Cipher.getInstance("AES/CBC/PKCS5Padding")

@@ -3,7 +3,7 @@ package api.routes
 import application.sevices.UserService
 import cats.effect.IO
 import core.json.UserJson.*
-import core.models.AppUser.DataTransfer.AppUserCreate
+import core.models.AppUser.AppUserCreate
 import io.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.jsonOf
@@ -11,40 +11,47 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.server.{AuthMiddleware, Router}
 import org.http4s.{AuthedRoutes, EntityDecoder, HttpRoutes}
 
-final case class UserRoutes(
+final case class PrivateUserRoutes(
     userService: UserService
 ) extends Http4sDsl[IO] {
-
-  implicit val decoder: EntityDecoder[IO, AppUserCreate] =
-    jsonOf[IO, AppUserCreate]
-
   private[routes] val prefixPath = "/users"
-
-  // Update to use AuthedRoutes with the authMiddleware applied
-  private val authedRoutes: AuthedRoutes[String, IO] = AuthedRoutes.of {
-
-    // Authenticated GET route
+  private val userRoutes: AuthedRoutes[String, IO] = AuthedRoutes.of {
     case GET -> Root / id as user =>
       userService.getUser(id).flatMap {
         case Some(userData) => Ok(userData)
         case None           => NotFound()
       }
+  }
+  def routes(authMiddleware: AuthMiddleware[IO, String]): HttpRoutes[IO] = {
+    Router(
+      prefixPath -> authMiddleware(userRoutes)
+    )
+  }
+}
 
-    case req @ POST -> Root as user =>
-      req.req.decode[AppUserCreate] { newUser =>
+final case class PublicUserRoutes(
+    userService: UserService
+) extends Http4sDsl[IO] {
+  implicit val decoder: EntityDecoder[IO, AppUserCreate] =
+    jsonOf[IO, AppUserCreate]
+  private[routes] val prefixPath = "/users"
+
+  private val userRoutes: HttpRoutes[IO] = HttpRoutes.of[IO] {
+    // Public POST route for user registration
+    case req @ POST -> Root =>
+      req.decode[AppUserCreate] { newUser =>
         userService.getUserByEmail(newUser.email).flatMap {
-          case Some(_) => BadRequest() // Require recaptcha in future
+          case Some(_) => BadRequest() // Email already exists
           case None =>
             userService.createUser(newUser).flatMap {
-              case Right(id)              => Ok(id)
+              case Right(id)              => Ok(id) // User created successfully
               case Left(validationErrors) => BadRequest(validationErrors)
             }
         }
       }
   }
 
-  // Combine routes with middleware
-  def routes(authMiddleware: AuthMiddleware[IO, String]): HttpRoutes[IO] = {
-    Router(prefixPath -> authMiddleware(authedRoutes))
-  }
+  val routes: HttpRoutes[IO] = Router(
+    prefixPath -> userRoutes
+  )
 }

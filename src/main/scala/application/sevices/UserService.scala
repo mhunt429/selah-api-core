@@ -3,7 +3,7 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.effect.IO
 import cats.implicits.*
-import core.models.AppUser.DataTransfer.{AppUserCreate, AppUserViewModel}
+import core.models.AppUser.{AppUserCreate, AppUserViewModel}
 import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
 

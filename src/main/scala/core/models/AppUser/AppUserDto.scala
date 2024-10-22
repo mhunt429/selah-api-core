@@ -1,4 +1,4 @@
-package core.models.AppUser.DataTransfer
+package core.models.AppUser
 
 import io.circe.*
 import io.circe.generic.semiauto.*
@@ -25,7 +25,8 @@ case class AppUserCreate(
     phone: String,
     firstName: String,
     lastName: String,
-    accountId: Long
+    accountId: Long,
+    dateCreated: Instant = Instant.now()
 )
 
 //The below class should be used

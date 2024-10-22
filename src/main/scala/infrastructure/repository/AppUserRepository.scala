@@ -2,22 +2,21 @@ package infrastructure.repository
 
 import cats.effect.IO
 import core.models.AppUser.*
-import core.models.AppUser.DataAccess.AppUser
-import core.models.AppUser.DataTransfer.AppUserCreate
 import doobie.*
 import doobie.implicits.*
+import doobie.implicits.javatimedrivernative.*
 
 import java.time.{Instant, ZoneId}
 
 trait AppUserRepository {
-  def createUser(createdUser: AppUserCreate) : IO[Long]
-  def getUser(id: Long) : IO[Option[AppUser]]
+  def createUser(createdUser: AppUserCreate): IO[Long]
+  def getUser(id: Long): IO[Option[AppUser]]
 
   def getUserByEmail(email: String): IO[Option[String]]
 }
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
   private val logger = org.log4s.getLogger
-  
+
   def createUser(createdUser: AppUserCreate): IO[Long] = {
     BaseRepository
       .insertWithId(xa, createUserSql(createdUser))
@@ -65,15 +64,12 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
         ${createdUser.password},
         ${createdUser.firstName},
         ${createdUser.lastName},
-        ${Instant.now().toEpochMilli})
+        ${createdUser.dateCreated})
       """
   }
 
   private def getUserByEmailSql(email: String) = {
-    /*
-    ZonedDateTime dateTime = Instant.ofEpochMilli(millis)
-                .atZone(ZoneId.of("Australia/Sydney"));
-     */
+
     println(
       Instant
         .ofEpochMilli(1695350509623L)
@@ -85,6 +81,4 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
          where email = $email LIMIT 1
          """
   }
-
-  //override def getUser(id: Int): IO[Option[AppUserViewModel]] = ???
 }
