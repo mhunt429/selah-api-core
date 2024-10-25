@@ -16,10 +16,10 @@ object UserJson {
     deriveDecoder[AppUserViewModel]
 
   // Encoder and Decoder for AppUserCreate
-  implicit val appUserCreateEncoder: Encoder[AppUserCreate] =
-    deriveEncoder[AppUserCreate]
-  implicit val appUserCreateDecoder: Decoder[AppUserCreate] =
-    deriveDecoder[AppUserCreate]
+  implicit val appUserCreateEncoder: Encoder[AppUserCreateRequest] =
+    deriveEncoder[AppUserCreateRequest]
+  implicit val appUserCreateDecoder: Decoder[AppUserCreateRequest] =
+    deriveDecoder[AppUserCreateRequest]
 
   // Encoder and Decoder for AppUserUpdate
   implicit val appUserUpdateEncoder: Encoder[AppUserUpdate] =

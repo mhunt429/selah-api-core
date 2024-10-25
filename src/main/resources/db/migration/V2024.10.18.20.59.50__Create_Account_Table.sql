@@ -1,11 +1,11 @@
 CREATE TABLE account
 (
-    original_insert_epoch BIGINT NOT NULL,
-    last_update_epoch     BIGINT NOT NULL,
-    app_last_changed_by   BIGINT NOT NULL,
-    id                    BIGSERIAL PRIMARY KEY,
-    date_created          BIGINT,
-    account_name          TEXT
+    original_insert     TIMESTAMPTZ NOT NULL,
+    last_update         TIMESTAMPTZ NOT NULL,
+    app_last_changed_by BIGINT      NOT NULL,
+    id                  BIGSERIAL PRIMARY KEY,
+    date_created        TIMESTAMPTZ,
+    account_name        TEXT
 )
 
 

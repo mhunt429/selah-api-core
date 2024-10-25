@@ -3,27 +3,29 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.effect.IO
 import cats.implicits.*
-import core.models.AppUser.{AppUserCreate, AppUserViewModel}
+import core.models.AppUser.{AppUserCreateRequest, AppUserViewModel}
 import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
+import org.slf4j.LoggerFactory
 
 import java.time.Instant
+import java.util.Base64
 
 trait UserService {
   def getUser(id: String): IO[Option[AppUserViewModel]]
   def createUser(
-      user: AppUserCreate
+      user: AppUserCreateRequest
   ): IO[Either[List[String], AppUserViewModel]]
 
   def getUserByEmail(email: String): IO[Option[String]]
 }
 class UserServiceImpl(
     appUserRepository: AppUserRepository,
-    securityService: SecurityService
+    cryptoService: CryptoService
 ) extends UserService {
-
+  private val logger = LoggerFactory.getLogger(getClass)
   def createUser(
-      user: AppUserCreate
+      user: AppUserCreateRequest
   ): IO[Either[List[String], AppUserViewModel]] = {
     validateUser(user) match {
       case Valid(u) =>
@@ -32,14 +34,14 @@ class UserServiceImpl(
           .map(createdId => {
             Right(
               AppUserViewModel(
-                id = securityService.encodeHashId(createdId),
-                accountId = securityService.encodeHashId(createdId),
+                id = cryptoService.encodeHashId(createdId),
+                accountId = cryptoService.encodeHashId(createdId),
                 username = "",
                 email = user.email,
                 firstName = user.firstName,
                 phone = user.phone,
                 lastName = user.lastName,
-                dateCreated = Instant.now().toEpochMilli
+                dateCreated = Instant.now()
               )
             )
           })
@@ -49,33 +51,38 @@ class UserServiceImpl(
   }
 
   def getUser(id: String): IO[Option[AppUserViewModel]] = {
-    val decodedId: Long = securityService.decodeHashId(id)
+    val decodedId: Long = cryptoService.decodeHashId(id)
     appUserRepository.getUser(decodedId).map {
       case Some(u) =>
-        val fullName = securityService.decrypt(u.encryptedName)
+        val fullName = cryptoService.decrypt(u.encryptedName)
         val splitName = fullName.split("|")
         Some(
           AppUserViewModel(
             id = id,
-            accountId = securityService.encodeHashId(u.accountId),
-            email = securityService.decrypt(u.encryptedEmail),
+            accountId = cryptoService.encodeHashId(u.accountId),
+            email = cryptoService.decrypt(u.encryptedEmail),
             username = u.username,
             firstName = splitName.head,
             lastName = splitName.last,
-            phone = securityService.decrypt(u.encryptedPhone),
-            dateCreated = u.createdEpoch,
+            phone = cryptoService.decrypt(u.encryptedPhone),
+            dateCreated = u.createdDate
           )
         )
       case _ => None
     }
   }
 
-  def getUserByEmail(email: String): IO[Option[String]] =
-    appUserRepository.getUserByEmail(email)
+  def getUserByEmail(email: String): IO[Option[String]] = {
+    val encryptedEmail: Array[Byte] = cryptoService.encrypt(email)
+    val encodedEmail = Base64.getEncoder.encodeToString(encryptedEmail)
+    appUserRepository.getUserByEmail(encodedEmail).handleErrorWith { e =>
+      IO.pure(None) // Return None or handle it as needed
+    }
+  }
 
   private def validateUser(
-      userCreate: AppUserCreate
-  ): ValidatedNel[ValidationError, AppUserCreate] = {
+      userCreate: AppUserCreateRequest
+  ): ValidatedNel[ValidationError, AppUserCreateRequest] = {
     (
       validateEmail(userCreate.email).toValidatedNel,
       validateFirstName(userCreate.firstName).toValidatedNel,

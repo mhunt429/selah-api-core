@@ -3,12 +3,13 @@ package api.routes
 import application.sevices.UserService
 import cats.effect.IO
 import core.json.UserJson.*
-import core.models.AppUser.AppUserCreate
+import core.models.AppUser.AppUserCreateRequest
 import io.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.jsonOf
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.{AuthMiddleware, Router}
+import org.http4s.util.CaseInsensitiveString
 import org.http4s.{AuthedRoutes, EntityDecoder, HttpRoutes}
 
 final case class PrivateUserRoutes(
@@ -32,14 +33,14 @@ final case class PrivateUserRoutes(
 final case class PublicUserRoutes(
     userService: UserService
 ) extends Http4sDsl[IO] {
-  implicit val decoder: EntityDecoder[IO, AppUserCreate] =
-    jsonOf[IO, AppUserCreate]
+  implicit val decoder: EntityDecoder[IO, AppUserCreateRequest] =
+    jsonOf[IO, AppUserCreateRequest]
   private[routes] val prefixPath = "/users"
 
   private val userRoutes: HttpRoutes[IO] = HttpRoutes.of[IO] {
     // Public POST route for user registration
     case req @ POST -> Root =>
-      req.decode[AppUserCreate] { newUser =>
+      req.decode[AppUserCreateRequest] { newUser =>
         userService.getUserByEmail(newUser.email).flatMap {
           case Some(_) => BadRequest() // Email already exists
           case None =>

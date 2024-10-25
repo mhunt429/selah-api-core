@@ -2,19 +2,37 @@ package core.models.AppUser
 
 import java.time.Instant
 
+//Cannonical model of the app_user table
 case class AppUser(
-    originalInsertEpoch: Instant,
-    lastUpdateEpoch: Long,
+    originalInsert: Instant,
+    lastUpdate: Instant,
     appLastChangedBy: Long,
     id: Long,
     accountId: Long,
-    createdEpoch: Long,
+    createdDate: Instant,
     encryptedEmail: Array[Byte],
     username: String,
     password: String,
     encryptedName: Array[Byte],
     encryptedPhone: Array[Byte],
-    lastLoginEpoch: Option[Long],
+    lastLogin: Instant,
+    lastLoginIp: Option[String],
+    phoneVerified: Option[Boolean],
+    emailVerified: Option[Boolean]
+)
+
+case class AppUserInsert(
+    originalInsert: Instant = Instant.now(),
+    lastUpdate: Instant,
+    appLastChangedBy: Long,
+    accountId: Long,
+    createdDate: Instant = Instant.now(),
+    encryptedEmail: Array[Byte],
+    username: String,
+    password: String,
+    encryptedName: Array[Byte],
+    encryptedPhone: Array[Byte],
+    lastLogin: Instant = Instant.now(),
     lastLoginIp: Option[String],
     phoneVerified: Option[Boolean],
     emailVerified: Option[Boolean]
@@ -22,7 +40,7 @@ case class AppUser(
 
 case class AppUserUpdate(
     encryptedEmail: Array[Byte],
-    lastUpdateEpoch: Long = Instant.now().toEpochMilli,
+    lastUpdate: Instant,
     username: String,
     encryptedName: Array[Byte],
     encryptedPhone: Array[Byte],

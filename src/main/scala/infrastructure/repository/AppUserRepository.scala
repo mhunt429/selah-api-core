@@ -6,34 +6,24 @@ import doobie.*
 import doobie.implicits.*
 import doobie.implicits.javatimedrivernative.*
 
-import java.time.{Instant, ZoneId}
+import java.time.Instant
 
 trait AppUserRepository {
-  def createUser(createdUser: AppUserCreate): IO[Long]
+  def createUser(createdUser: AppUserCreateRequest): IO[Long]
   def getUser(id: Long): IO[Option[AppUser]]
 
-  def getUserByEmail(email: String): IO[Option[String]]
+  def getUserByEmail(encryptedEmail: String): IO[Option[String]]
 }
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
-  private val logger = org.log4s.getLogger
 
-  def createUser(createdUser: AppUserCreate): IO[Long] = {
+  def createUser(createdUser: AppUserCreateRequest): IO[Long] = {
     BaseRepository
       .insertWithId(xa, createUserSql(createdUser))
-      .handleErrorWith(error => {
-        logger.error(s"Postgres response with error => ${error.getMessage}")
-        IO(0)
-      })
-
   }
 
   def getUser(id: Long): IO[Option[AppUser]] = {
     BaseRepository
       .get[AppUser](xa, getUserQuery(id))
-      .handleErrorWith(error => {
-        logger.error(s"Postgres response with error => ${error.getMessage}")
-        IO(None)
-      })
   }
 
   def getUserByEmail(email: String): IO[Option[String]] = {
@@ -51,7 +41,7 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
          last_name,
          date_created FROM app_user WHERE id = $id"""
   }
-  private def createUserSql(createdUser: AppUserCreate) = {
+  private def createUserSql(createdUser: AppUserCreateRequest) = {
     sql"""
         INSERT INTO app_user (
         email,
@@ -69,16 +59,10 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
   }
 
   private def getUserByEmailSql(email: String) = {
-
-    println(
-      Instant
-        .ofEpochMilli(1695350509623L)
-        .atZone(ZoneId.of("America/New_York"))
-    )
     sql"""
-         SELECT email
+         SELECT encrypted_email
          FROM app_user
-         where email = $email LIMIT 1
+         where encrypted_email = $email LIMIT 1
          """
   }
 }

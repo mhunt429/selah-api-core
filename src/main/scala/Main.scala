@@ -3,11 +3,11 @@ import cats.effect.*
 import cats.effect.unsafe.IORuntime
 import com.comcast.ip4s.{host, port}
 import core.config.{Config, DatabaseConfig}
+import core.json.ConfigJson.*
 import doobie.ExecutionContexts
 import io.circe.config.parser
 import org.http4s.ember.server.EmberServerBuilder
 import org.http4s.server.middleware.CORS
-import core.json.ConfigJson.*
 
 object Main extends IOApp {
   private implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global

@@ -22,7 +22,6 @@ lazy val root = project
       "org.http4s" %% "http4s-ember-server" % http4sVersion,
       "org.http4s" %% "http4s-dsl" % http4sVersion,
       "org.http4s" %% "http4s-circe" % http4sVersion,
-      "org.typelevel" %% "log4cats-slf4j" % log4catsVersion,
       "org.hashids" % "hashids" % hashIdsVersion,
       "org.tpolecat" %% "skunk-core" % skunkVersion,
       "co.fs2" %% "fs2-core" % fs2Version,
@@ -53,7 +52,6 @@ val catsEffectVersion = "3.5.0"
 val circeVersion = "0.14.5"
 val catsVersion = "2.9.0"
 val http4sVersion = "0.23.21"
-val log4catsVersion = "2.5.0"
 val hashIdsVersion = "1.0.3"
 val skunkVersion = "0.6.0"
 val fs2Version = "3.7.0"

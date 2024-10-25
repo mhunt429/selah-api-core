@@ -1,27 +1,27 @@
 CREATE TABLE app_user
 (
-    original_insert_epoch BIGINT    NOT NULL,
-    last_update_epoch     BIGINT    NOT NULL,
-    app_last_changed_by   BIGSERIAL NOT NULL,
-    id                    BIGSERIAL PRIMARY KEY,
-    account_id            BIGSERIAL references account (id),
-    created_epoch         BIGINT,
-    encrypted_email       BYTEA,
-    username              VARCHAR(20),
-    password              TEXT,
-    encrypted_name        BYTEA,
-    encrypted_phone       BYTEA,
-    last_login_epoch      BIGINT,
-    last_login_ip         TEXT,
-    phone_verified        BOOLEAN,
-    email_verified        BOOLEAN,
+    original_insert     TIMESTAMPTZ NOT NULL,
+    last_update         BIGINT      NOT NULL,
+    app_last_changed_by BIGINT      NOT NULL,
+    id                  BIGSERIAL PRIMARY KEY,
+    account_id          BIGSERIAL references account (id),
+    created_date        TIMESTAMPTZ,
+    encrypted_email     TEXT,
+    username            VARCHAR(20),
+    password            TEXT,
+    encrypted_name      TEXT,
+    encrypted_phone     TEXT,
+    last_login          TIMESTAMPTZ,
+    last_login_ip       TEXT,
+    phone_verified      BOOLEAN,
+    email_verified      BOOLEAN,
 
     UNIQUE (username)
 
 );
 
 CREATE INDEX user_email_index on app_user (encrypted_email);
-CREATE INDEX user_phone_idx on app_user (encrypted_phone);
+CREATE INDEX user_phone_index on app_user (encrypted_phone);
 
 /*
  ROLLBACK
