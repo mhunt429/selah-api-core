@@ -1,18 +1,19 @@
 package infrastructure.repository
+import cats.effect.*
 import doobie.*
 import doobie.implicits.*
 import doobie.util.transactor.Transactor
-import cats.effect.*
-import scala.concurrent.ExecutionContext
 trait HealthCheckRepository {
 
   //Get a processId from PostgreSQL as part of system health checks
-  def getPostgresProcessId:IO[Option[String]]
+  def getPostgresProcessId: IO[Option[String]]
 }
 
-class HealthCheckRepositoryImpl(val xa: Transactor[IO]) extends HealthCheckRepository{
-  def getPostgresProcessId:IO[Option[String]] = {
-     getPostgresProcessIdSql.query[String].option.transact(xa)
+class HealthCheckRepositoryImpl(val xa: Transactor[IO])
+    extends HealthCheckRepository {
+  def getPostgresProcessId: IO[Option[String]] = {
+    println(xa)
+    getPostgresProcessIdSql.query[String].option.transact(xa)
   }
 
   private def getPostgresProcessIdSql = {

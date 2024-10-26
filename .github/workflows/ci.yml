@@ -12,8 +12,21 @@ jobs:
     name: Build and Run
     strategy:
       matrix:
-        java-version: [8, 11, 17]
+        java-version: [ 8, 11, 17 ]
     runs-on: ubuntu-latest
+
+    services:
+      slash-db:
+        image: postgres:14.1-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - '55432:5432'
+        volumes:
+          - db:/var/lib/postgresql/data
+
     steps:
       - name: Checkout current branch (full)
         uses: actions/checkout@v2

@@ -1,9 +1,13 @@
 package utils
 
+import cats.effect.unsafe.IORuntime
+import cats.effect.{IO, Resource}
 import core.config.{Config, DatabaseConfig, SecurityConfig, ServerConfig}
+import doobie.ExecutionContexts
+import doobie.util.transactor.Transactor
 
 object TestHelpers {
-
+  private implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
   //test configuration for unit/integration tests
   val testConfig: Config = Config(
     server = ServerConfig(host = "localhost", port = 8080),
@@ -23,5 +27,14 @@ object TestHelpers {
         "3ca5a1185b613cee4ba947839490427c36f1994809cb9a603c2a3717dd39d475"
     )
   )
+
+  def initializeTestDb(): Resource[IO, Transactor[IO]] = {
+    for {
+      serverEc <- ExecutionContexts.cachedThreadPool[IO]
+      txnEc <- ExecutionContexts.cachedThreadPool[IO]
+      xa <- DatabaseConfig.transactor(testConfig.db, txnEc)
+      _ <- Resource.eval(DatabaseConfig.cleanSchema(xa)) // Ensure schema is cleaned
+    } yield xa
+  }
 
 }
