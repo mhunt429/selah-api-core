@@ -3,10 +3,8 @@ package application
 import application.sevices.HealthCheckServiceImpl
 import cats.effect.*
 import cats.effect.unsafe.IORuntime
-import cats.syntax.all.*
 import core.models.{HealthCheck, PostgreSQL}
 import infrastructure.repository.HealthCheckRepository
-import org.log4s.*
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 class HealthCheckServiceSpec extends AnyFlatSpec with Matchers {
