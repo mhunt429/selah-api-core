@@ -21,7 +21,7 @@ class HealthCheckRepositorySpec
 
   override def beforeEach(): Unit = {
     healthCheckRepositoryResource = for {
-      transactor <- TestHelpers.initializeTestDb() 
+      transactor <- TestHelpers.initializeTestDb()
     } yield new HealthCheckRepositoryImpl(transactor)
   }
 
@@ -36,7 +36,7 @@ class HealthCheckRepositorySpec
         for {
           processId <- healthCheckRepository.getPostgresProcessId
           _ <- IO {
-            processId should not be empty
+            processId.head should not be empty
           }
         } yield ()
       }

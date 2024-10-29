@@ -7,6 +7,7 @@ import core.models.AppUser.{AppUserCreateRequest, AppUserViewModel}
 import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
 import org.slf4j.LoggerFactory
+import utils.StringUtilities
 
 import java.time.Instant
 import java.util.Base64
@@ -74,7 +75,7 @@ class UserServiceImpl(
 
   def getUserByEmail(email: String): IO[Option[String]] = {
     val encryptedEmail: Array[Byte] = cryptoService.encrypt(email)
-    val encodedEmail = Base64.getEncoder.encodeToString(encryptedEmail)
+    val encodedEmail = StringUtilities.convertBytesToBase64(encryptedEmail)
     appUserRepository.getUserByEmail(encodedEmail).handleErrorWith { e =>
       IO.pure(None) // Return None or handle it as needed
     }
