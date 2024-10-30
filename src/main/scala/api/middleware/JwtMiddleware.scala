@@ -7,12 +7,15 @@ import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
 import com.auth0.jwt.{JWT, JWTVerifier}
 import core.config.Config
+import core.models.Application.AppRequestContext
 import org.http4s.*
 import org.http4s.dsl.io.*
 import org.http4s.server.AuthMiddleware
 import org.http4s.util.CaseInsensitiveString
+
+import java.util.UUID
 object JwtMiddleware {
-  def apply(config: Config): AuthMiddleware[IO, String] = {
+  def apply(config: Config): AuthMiddleware[IO, AppRequestContext] = {
     // Extract token from the request
     val tokenExtractor: Request[IO] => Either[String, String] = request => {
       request.headers
@@ -27,10 +30,10 @@ object JwtMiddleware {
     }
 
     // Validate the token and return AuthenticatedUser or error message
-    val validateToken: Kleisli[IO, Request[IO], Either[String, String]] =
+    val validateToken: Kleisli[IO, Request[IO], Either[String, AppRequestContext]] =
       Kleisli { request =>
         IO(tokenExtractor(request).flatMap { token =>
-          verifyToken(token, config.securityConfig.jwtSecret)
+          verifyToken(token, config.securityConfig.jwtSecret, request.headers)
         })
       }
 
@@ -46,8 +49,9 @@ object JwtMiddleware {
   // Verifies JWT token and returns the username (or any payload)
   private def verifyToken(
       token: String,
-      secret: String
-  ): Either[String, String] = {
+      secret: String,
+      headers: Headers
+  ): Either[String, AppRequestContext] = {
     try {
       val algorithm = Algorithm.HMAC256(secret)
       val verifier: JWTVerifier = JWT
@@ -56,8 +60,16 @@ object JwtMiddleware {
         .build()
 
       val decodedJWT: DecodedJWT = verifier.verify(token)
-      val username = decodedJWT.getClaim("subject").asString()
-      Right(username)
+      val appRequestContextId = decodedJWT.getClaim("subject").asString()
+      val ipAddress =  headers
+        .get(CaseInsensitiveString("x-forwared-for"))
+      
+      Right(
+        AppRequestContext(
+          id = appRequestContextId, 
+          ipAddress = ipAddress.map(_.head.value),
+          requestId = UUID.randomUUID())
+      )
     } catch {
       case _: JWTVerificationException => Left("Invalid or expired token")
     }

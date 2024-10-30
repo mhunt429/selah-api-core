@@ -4,6 +4,7 @@ import application.sevices.UserService
 import cats.effect.IO
 import core.json.UserJson.*
 import core.models.AppUser.AppUserCreateRequest
+import core.models.Application.AppRequestContext
 import io.circe.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.jsonOf
@@ -16,14 +17,14 @@ final case class PrivateUserRoutes(
     userService: UserService
 ) extends Http4sDsl[IO] {
   private[routes] val prefixPath = "/users"
-  private val userRoutes: AuthedRoutes[String, IO] = AuthedRoutes.of {
+  private val userRoutes: AuthedRoutes[AppRequestContext, IO] = AuthedRoutes.of {
     case GET -> Root / id as user =>
       userService.getUser(id).flatMap {
         case Some(userData) => Ok(userData)
         case None           => NotFound()
       }
   }
-  def routes(authMiddleware: AuthMiddleware[IO, String]): HttpRoutes[IO] = {
+  def routes(authMiddleware: AuthMiddleware[IO, AppRequestContext]): HttpRoutes[IO] = {
     Router(
       prefixPath -> authMiddleware(userRoutes)
     )

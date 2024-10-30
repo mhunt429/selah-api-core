@@ -5,6 +5,7 @@ import api.routes.{HealthCheckRoutes, MetricsRoutes, PrivateUserRoutes, PublicUs
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
 import core.config.Config
+import core.models.Application.AppRequestContext
 import io.prometheus.client.CollectorRegistry
 import org.http4s.*
 import org.http4s.implicits.*
@@ -30,7 +31,7 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val metricsRoutes = MetricsRoutes(registry).routes
   private val publicUserRoutes = PublicUserRoutes(services.userService).routes
 
-  val authMiddleware: AuthMiddleware[IO, String] = JwtMiddleware(config)
+  val authMiddleware: AuthMiddleware[IO, AppRequestContext] = JwtMiddleware(config)
 
   private val publicRoutes: HttpRoutes[IO] =
     healthRoutes <+> metricsRoutes <+> publicUserRoutes
