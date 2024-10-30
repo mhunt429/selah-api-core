@@ -17,7 +17,6 @@ trait AccountRepository {
 class AccountRepositoryImpl(xa: Transactor[IO]) extends AccountRepository {
 
   def createAccount(accountName: String): IO[Long] = {
-
     for {
       id <- BaseRepository.insertWithId(xa, createAccountSql(accountName))
       _ <- updateAccountLastChangeBy(id)

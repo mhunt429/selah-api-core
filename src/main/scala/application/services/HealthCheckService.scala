@@ -1,4 +1,4 @@
-package application.sevices
+package application.services
 
 import cats.effect.*
 import cats.effect.implicits.*

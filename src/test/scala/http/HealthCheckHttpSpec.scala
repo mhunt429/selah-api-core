@@ -1,7 +1,7 @@
 package http
 
 import api.routes.HealthCheckRoutes
-import application.sevices.HealthCheckService
+import application.services.HealthCheckService
 import cats.effect.*
 import cats.effect.unsafe.IORuntime
 import core.models.{HealthCheck, PostgreSQL}

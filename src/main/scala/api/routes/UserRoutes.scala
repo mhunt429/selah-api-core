@@ -1,6 +1,6 @@
 package api.routes
 
-import application.sevices.UserService
+import application.services.account.UserService
 import cats.effect.IO
 import core.json.UserJson.*
 import core.models.AppUser.AppUserCreateRequest

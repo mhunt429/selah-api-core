@@ -1,6 +1,8 @@
 package api.modules
 
-import application.sevices.{CryptoService, HealthCheckServiceImpl, UserServiceImpl}
+import application.services.account.UserServiceImpl
+import application.services.HealthCheckServiceImpl
+import application.services.security.CryptoService
 import core.config.Config
 import org.hashids.Hashids
 //Dependency injection for application service layer

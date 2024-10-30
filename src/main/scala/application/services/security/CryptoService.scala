@@ -1,4 +1,4 @@
-package application.sevices
+package application.services.security
 
 import core.config.Config
 import org.hashids.Hashids

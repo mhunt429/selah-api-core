@@ -1,5 +1,6 @@
 package core.json
 
+import core.models.Http.HttpResponse
 import core.models.{HealthCheck, PostgreSQL}
 import io.circe.*
 import io.circe.generic.semiauto.*
@@ -13,4 +14,6 @@ object HealthCheckJson {
     deriveEncoder[HealthCheck]
   implicit val healthCheckDecoder: Decoder[HealthCheck] =
     deriveDecoder[HealthCheck]
+
+
 }

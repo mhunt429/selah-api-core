@@ -1,6 +1,6 @@
 package application
 
-import application.sevices.CryptoService
+import application.services.security.CryptoService
 import org.hashids.Hashids
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
