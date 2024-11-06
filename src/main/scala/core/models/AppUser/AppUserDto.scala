@@ -19,13 +19,14 @@ case class AppUserViewModel(
 )
 
 case class AppUserCreateRequest(
+    username: String,
     email: String,
     password: String,
     passwordConfirmation: String,
     phone: String,
     firstName: String,
     lastName: String,
-    accountId: Long,
+    accountId: String,
     dateCreated: Instant = Instant.now()
 )
 

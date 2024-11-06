@@ -7,6 +7,5 @@ case class HttpResponse[A](
                           )
 
 case class HttpErrors(
-    key: String,
     message: String
                      )

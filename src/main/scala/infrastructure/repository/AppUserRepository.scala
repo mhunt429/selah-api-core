@@ -9,14 +9,14 @@ import doobie.implicits.javatimedrivernative.*
 import java.time.Instant
 
 trait AppUserRepository {
-  def createUser(createdUser: AppUserCreateRequest): IO[Long]
+  def createUser(createdUser: AppUserInsert): IO[Long]
   def getUser(id: Long): IO[Option[AppUser]]
 
   def getUserByEmail(encryptedEmail: String): IO[Option[String]]
 }
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
 
-  def createUser(createdUser: AppUserCreateRequest): IO[Long] = {
+  def createUser(createdUser: AppUserInsert): IO[Long] = {
     BaseRepository
       .insertWithId(xa, createUserSql(createdUser))
   }
@@ -41,20 +41,22 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
          last_name,
          date_created FROM app_user WHERE id = $id"""
   }
-  private def createUserSql(createdUser: AppUserCreateRequest) = {
+  private def createUserSql(createdUser: AppUserInsert) = {
     sql"""
         INSERT INTO app_user (
-        email,
-        password,
-        first_name,
-        last_name,
-        date_created
+        original_insert,
+        last_update,
+        app_last_changed_by,
+        account_id,
+        created_date,
+        encrypted_email
         )
-        VALUES (${createdUser.email},
-        ${createdUser.password},
-        ${createdUser.firstName},
-        ${createdUser.lastName},
-        ${createdUser.dateCreated})
+        VALUES (${createdUser.originalInsert},
+        ${createdUser.lastUpdate},
+        -1, //set to -1 temporarily because we will update it with the auto-incrementing primary key
+        ${createdUser.accountId},
+        ${createdUser.createdDate},
+         ${createdUser.encryptedEmail},
       """
   }
 

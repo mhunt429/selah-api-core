@@ -3,7 +3,7 @@ package application.services.security
 import core.config.Config
 import org.hashids.Hashids
 import utils.StringUtilities
-
+import org.mindrot.jbcrypt.BCrypt
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
@@ -54,5 +54,13 @@ class CryptoService( config: Config, hashService: Hashids) {
   private def generateIv(): Array[Byte] = {
     val secureRandom = new SecureRandom()
     Array.fill(16)(secureRandom.nextInt(256).toByte)
+  }
+
+  def hashPassword(plainText: String): String = {
+    BCrypt.hashpw(plainText, BCrypt.gensalt())
+  }
+
+  def checkPassword(plainText: String, hashedPassword: String): Boolean = {
+    BCrypt.checkpw(plainText, hashedPassword)
   }
 }

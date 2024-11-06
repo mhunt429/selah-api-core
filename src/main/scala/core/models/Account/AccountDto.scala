@@ -7,6 +7,10 @@ case class AccountViewModel(
     accountName: Option[String]
 )
 
+case class AccountCreateResponse(
+    id: String
+)
+
 case class AccountCreateRequest(
     accountName: Option[String]
 )

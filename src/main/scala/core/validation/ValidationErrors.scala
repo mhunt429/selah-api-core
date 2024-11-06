@@ -28,4 +28,8 @@ object ValidationErrors {
   case object PasswordAndConfirmationMismatch extends ValidationError {
     val message: String = "Password and Password Confirmation do not match"
   }
+  
+  case object AccountIdEmpty extends  ValidationError {
+    val message: String = "Account ID cannot be empty"
+  }
 }

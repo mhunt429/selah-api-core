@@ -4,12 +4,15 @@ import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.effect.IO
 import cats.implicits.*
 import core.models.AppUser.{AppUserCreateRequest, AppUserViewModel}
+import core.models.Registration.RegistrationHttpRequest
 import core.validation.{ValidationError, ValidationErrors}
 import infrastructure.repository.AppUserRepository
+
+
 object AccountValidationService {
   
   
-  //Validator for registration or adding a new user to an existing account
+  //Validator for adding a new user to an existing account
   def validateUser(
       userCreate: AppUserCreateRequest
   ): ValidatedNel[ValidationError, AppUserCreateRequest] = {
@@ -17,12 +20,21 @@ object AccountValidationService {
       validateEmail(userCreate.email).toValidatedNel,
       validateFirstName(userCreate.firstName).toValidatedNel,
       validateLastName(userCreate.lastName).toValidatedNel,
-      validatePassword(userCreate.password).toValidatedNel,
+      validateAccountId(userCreate.accountId).toValidatedNel
+    ).mapN { (_, _, _, _) => userCreate }
+  }
+  
+  def validateAccount(createAccountRequest: RegistrationHttpRequest): ValidatedNel[ValidationError, RegistrationHttpRequest] = {
+    (
+      validateEmail(createAccountRequest.email).toValidatedNel,
+      validateFirstName(createAccountRequest.firstName).toValidatedNel,
+      validateLastName(createAccountRequest.lastName).toValidatedNel,
+      validatePassword(createAccountRequest.password).toValidatedNel,
       validatePasswordAndConfirmation(
-        userCreate.password,
-        userCreate.passwordConfirmation
-      ).toValidatedNel
-    ).mapN { (_, _, _, _, _) => userCreate }
+        createAccountRequest.password,
+        createAccountRequest.passwordConfirmation
+      ).toValidatedNel,
+    ).mapN { (_, _, _, _, _) => createAccountRequest }
   }
 
   private def validateEmail(
@@ -66,4 +78,7 @@ object AccountValidationService {
     else
       ValidationErrors.PasswordAndConfirmationMismatch.invalid
 
+  private def validateAccountId(accountId: String): Validated[ValidationError, String] =
+    Option.when(accountId.trim.nonEmpty)(accountId)
+      .toValid(ValidationErrors.AccountIdEmpty)
 }

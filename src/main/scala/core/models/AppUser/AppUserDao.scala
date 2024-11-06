@@ -10,11 +10,11 @@ case class AppUser(
     id: Long,
     accountId: Long,
     createdDate: Instant,
-    encryptedEmail: Array[Byte],
+    encryptedEmail: String,
     username: String,
     password: String,
-    encryptedName: Array[Byte],
-    encryptedPhone: Array[Byte],
+    encryptedName: String,
+    encryptedPhone: String,
     lastLogin: Instant,
     lastLoginIp: Option[String],
     phoneVerified: Option[Boolean],
@@ -23,15 +23,15 @@ case class AppUser(
 
 case class AppUserInsert(
     originalInsert: Instant = Instant.now(),
-    lastUpdate: Instant,
+    lastUpdate: Instant = Instant.now(),
     appLastChangedBy: Long,
     accountId: Long,
     createdDate: Instant = Instant.now(),
-    encryptedEmail: Array[Byte],
+    encryptedEmail: String,
     username: String,
     password: String,
-    encryptedName: Array[Byte],
-    encryptedPhone: Array[Byte],
+    encryptedName: String,
+    encryptedPhone: String,
     lastLogin: Instant = Instant.now(),
     lastLoginIp: Option[String],
     phoneVerified: Option[Boolean],
@@ -39,11 +39,11 @@ case class AppUserInsert(
 )
 
 case class AppUserUpdate(
-    encryptedEmail: Array[Byte],
+    encryptedEmail: String,
     lastUpdate: Instant,
     username: String,
-    encryptedName: Array[Byte],
-    encryptedPhone: Array[Byte],
+    encryptedName: String,
+    encryptedPhone: String,
     phoneVerified: Option[Boolean],
     emailVerified: Option[Boolean]
 ) {

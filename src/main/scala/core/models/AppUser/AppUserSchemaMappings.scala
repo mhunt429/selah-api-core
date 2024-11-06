@@ -11,21 +11,21 @@ object AppUserSchemaMappings {
   implicit val appUserRead: Read[AppUser] =
     Read[
       (
-          Instant,
-            Instant,
-          Long,
-          Long,
-          Long,
-            Instant,
-          Array[Byte],
-          String,
-          String,
-          Array[Byte],
-          Array[Byte],
-            Instant,
-          Option[String],
-          Option[Boolean],
-          Option[Boolean]
+        Instant,
+        Instant,
+        Long,
+        Long,
+        Long,
+        Instant,
+        String,
+        String,
+        String,
+        String,
+        String,
+        Instant,
+        Option[String],
+        Option[Boolean],
+        Option[Boolean]
       )
     ].map {
       case (

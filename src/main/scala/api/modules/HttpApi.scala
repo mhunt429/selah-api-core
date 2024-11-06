@@ -1,6 +1,6 @@
 package api.modules
 
-import api.middleware.{JwtMiddleware, MetricsMiddleware}
+import api.middleware.{ErrorHandlingMiddleware, JwtMiddleware, MetricsMiddleware}
 import api.routes.{HealthCheckRoutes, MetricsRoutes, PrivateUserRoutes, PublicUserRoutes}
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
@@ -31,7 +31,9 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val metricsRoutes = MetricsRoutes(registry).routes
   private val publicUserRoutes = PublicUserRoutes(services.userService).routes
 
-  val authMiddleware: AuthMiddleware[IO, AppRequestContext] = JwtMiddleware(config)
+  val authMiddleware: AuthMiddleware[IO, AppRequestContext] = JwtMiddleware(
+    config
+  )
 
   private val publicRoutes: HttpRoutes[IO] =
     healthRoutes <+> metricsRoutes <+> publicUserRoutes
@@ -62,8 +64,16 @@ sealed abstract class HttpApi[F[_]: Async] private (
     }
   }
 
-  val httpApp: HttpApp[IO] = loggers(
-    middleware(MetricsMiddleware(routes)).orNotFound
-  )
+  private val baseRoutes: HttpRoutes[IO] = routes
 
+  private val wrappedRoutes: HttpRoutes[IO] =
+    ErrorHandlingMiddleware(
+      MetricsMiddleware(
+        baseRoutes
+      )
+    )
+
+  val httpApp: HttpApp[IO] = loggers(
+    wrappedRoutes.orNotFound
+  )
 }

@@ -18,7 +18,7 @@ final case class PrivateUserRoutes(
 ) extends Http4sDsl[IO] {
   private[routes] val prefixPath = "/users"
   private val userRoutes: AuthedRoutes[AppRequestContext, IO] = AuthedRoutes.of {
-    case GET -> Root / id as user =>
+    case GET -> Root / id as appRequestContext : AppRequestContext =>
       userService.getUser(id).flatMap {
         case Some(userData) => Ok(userData)
         case None           => NotFound()
