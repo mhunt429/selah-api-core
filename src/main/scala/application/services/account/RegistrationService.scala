@@ -18,14 +18,16 @@ trait RegistrationService {
 
   def registerAccount(
       request: RegistrationHttpRequest
-  ): IO[Either[List[String], AccountCreateResponse]]
+  )(implicit
+    appRequestContext: AppRequestContext
+                     ): IO[Either[List[String], AccountCreateResponse]]
 }
 
-class RegistrationServiceImp(
+class RegistrationServiceImpl(
     accountRepository: AccountRepository,
     appUserRepository: AppUserRepository,
     cryptoService: CryptoService
-) extends UserService {
+) extends RegistrationService {
   private val logger = LoggerFactory.getLogger(getClass)
 
   def registerAccount(request: RegistrationHttpRequest)(implicit
