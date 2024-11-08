@@ -2,11 +2,13 @@ package infrastructure.repository
 
 import cats.effect.IO
 import core.models.Account.*
-import doobie.Transactor
 import doobie.implicits.*
 import doobie.implicits.javatimedrivernative.*
-
+import doobie.{Meta, Transactor}
+import doobie.implicits.javasql.TimestampMeta
+import java.sql.Timestamp
 import java.time.Instant
+
 trait AccountRepository {
   def createAccount(accountName: String): IO[Long]
   def getAccount(id: Long): IO[Option[Account]]
@@ -15,6 +17,8 @@ trait AccountRepository {
 }
 
 class AccountRepositoryImpl(xa: Transactor[IO]) extends AccountRepository {
+  implicit val instantMeta: Meta[Instant] =
+    Meta[Timestamp].imap(_.toInstant)(Timestamp.from)
 
   def createAccount(accountName: String): IO[Long] = {
     for {
@@ -45,7 +49,7 @@ class AccountRepositoryImpl(xa: Transactor[IO]) extends AccountRepository {
     sql"""
           UPDATE account
           SET app_last_changed_by = ${id},
-          account_name = ${accountName}
+          account_name = ${accountName},
           last_update = ${Instant.now()}
           WHERE id = ${id}
            """
@@ -68,7 +72,7 @@ class AccountRepositoryImpl(xa: Transactor[IO]) extends AccountRepository {
          and will be updated after the record in inserted with the newly created id
          */
          app_last_changed_by,
-         date_created
+         date_created,
          account_name
          )
          VALUES (

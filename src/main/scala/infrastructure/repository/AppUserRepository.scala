@@ -4,8 +4,9 @@ import cats.effect.IO
 import core.models.AppUser.*
 import doobie.*
 import doobie.implicits.*
-import doobie.implicits.javatimedrivernative.*
+import doobie.implicits.javasql.TimestampMeta
 
+import java.sql.Timestamp
 import java.time.Instant
 
 trait AppUserRepository {
@@ -15,6 +16,8 @@ trait AppUserRepository {
   def getUserByEmail(encryptedEmail: String): IO[Option[String]]
 }
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
+  implicit val instantMeta: Meta[Instant] =
+    Meta[Timestamp].imap(_.toInstant)(Timestamp.from)
 
   def createUser(createdUser: AppUserInsert): IO[Long] = {
     BaseRepository
@@ -53,10 +56,12 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
         )
         VALUES (${createdUser.originalInsert},
         ${createdUser.lastUpdate},
-        -1, //set to -1 temporarily because we will update it with the auto-incrementing primary key
+        /*set to -1 temporarily because we will update it with the auto-incrementing primary key*/
+        -1,
         ${createdUser.accountId},
         ${createdUser.createdDate},
-         ${createdUser.encryptedEmail},
+         ${createdUser.encryptedEmail}
+         )
       """
   }
 

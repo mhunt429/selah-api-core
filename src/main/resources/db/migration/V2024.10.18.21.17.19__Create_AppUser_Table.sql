@@ -1,7 +1,7 @@
 CREATE TABLE app_user
 (
     original_insert     TIMESTAMPTZ NOT NULL,
-    last_update         BIGINT      NOT NULL,
+    last_update         TIMESTAMPTZ NOT NULL,
     app_last_changed_by BIGINT      NOT NULL,
     id                  BIGSERIAL PRIMARY KEY,
     account_id          BIGSERIAL references account (id),

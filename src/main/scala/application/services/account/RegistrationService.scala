@@ -18,9 +18,7 @@ trait RegistrationService {
 
   def registerAccount(
       request: RegistrationHttpRequest
-  )(implicit
-    appRequestContext: AppRequestContext
-                     ): IO[Either[List[String], AccountCreateResponse]]
+  ): IO[Either[List[String], AccountCreateResponse]]
 }
 
 class RegistrationServiceImpl(
@@ -30,9 +28,7 @@ class RegistrationServiceImpl(
 ) extends RegistrationService {
   private val logger = LoggerFactory.getLogger(getClass)
 
-  def registerAccount(request: RegistrationHttpRequest)(implicit
-      appRequestContext: AppRequestContext
-  ): IO[Either[List[String], AccountCreateResponse]] = {
+  def registerAccount(request: RegistrationHttpRequest): IO[Either[List[String], AccountCreateResponse]] = {
     AccountValidationService.validateAccount(request) match {
       case Valid(r) =>
         for {
@@ -59,9 +55,9 @@ class RegistrationServiceImpl(
   private def mapRegistrationRequestToUserDataAccess(
       request: RegistrationHttpRequest,
       accountId: Long
-  )(implicit appRequestContext: AppRequestContext): AppUserInsert = {
+  ): AppUserInsert = {
     AppUserInsert(
-      appLastChangedBy = cryptoService.decodeHashId(appRequestContext.id),
+      appLastChangedBy = -1,
       accountId = accountId,
       encryptedEmail = StringUtilities.convertBytesToBase64(cryptoService.encrypt(request.email)),
       username = request.username,
@@ -69,7 +65,7 @@ class RegistrationServiceImpl(
       encryptedName =
         StringUtilities.convertBytesToBase64(cryptoService.encrypt(s"${request.firstName}:${request.lastName}")),
       encryptedPhone = StringUtilities.convertBytesToBase64(cryptoService.encrypt(request.phone)),
-      lastLoginIp = appRequestContext.ipAddress,
+      lastLoginIp = None,
       phoneVerified = Some(false),
       emailVerified = Some(false)
     )

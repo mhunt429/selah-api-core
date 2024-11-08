@@ -1,6 +1,6 @@
 package api.modules
 
-import application.services.account.UserServiceImpl
+import application.services.account.{RegistrationServiceImpl, UserServiceImpl}
 import application.services.HealthCheckServiceImpl
 import application.services.security.CryptoService
 import core.config.Config
@@ -20,6 +20,12 @@ class Services private (repository: Repository, config: Config) {
     HealthCheckServiceImpl(repository.healthCheckRepository)
 
   val userService: UserServiceImpl = UserServiceImpl(
+    repository.appUserRepository,
+    cryptoService
+  )
+  
+  val registrationService: RegistrationServiceImpl = RegistrationServiceImpl(
+    repository.accountRepository,
     repository.appUserRepository,
     cryptoService
   )

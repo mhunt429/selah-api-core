@@ -21,7 +21,7 @@ final case class HealthCheckRoutes(
   private val httpRoutes: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root =>
       healthCheckService.status.flatMap {
-        case healthCheck: HealthCheck => Ok(HttpResponse[HealthCheck](statusCode = 200, data = healthCheck))
+        case healthCheck: HealthCheck => Ok(HttpResponse[HealthCheck](statusCode = 200, data = Some(healthCheck)))
         case _                        => InternalServerError()
       }
   }
