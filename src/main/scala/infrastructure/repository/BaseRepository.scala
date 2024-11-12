@@ -5,17 +5,37 @@ import doobie.*
 import doobie.implicits.*
 import doobie.util.fragment.Fragment
 import doobie.util.transactor.Transactor
+
+
 object BaseRepository {
+
+//Any transactions should not auto-commit
+//This is so we can chain writes, updates, and deletes together as needed
   def insertWithId(
       xa: Transactor[IO],
       fragment: Fragment
-  ): IO[Long] = {
+  ): ConnectionIO[Long] = {
     fragment.update
       .withGeneratedKeys[Long]("id")
       .compile
       .lastOrError
-      .transact(xa)
   }
+
+  def update(
+              xa: Transactor[IO],
+              fragment: Fragment
+            ): ConnectionIO[Int] = {
+    fragment.update.run
+  }
+
+  def delete(
+              xa: Transactor[IO],
+              fragment: Fragment
+            ): ConnectionIO[Int] = {
+    fragment.update.run
+  }
+  
+  // Reads can return an IO instead of ConnectionIO
 
   def getAll[A](xa: Transactor[IO], fragment: Fragment)(implicit
       meta: Read[A]
@@ -37,19 +57,6 @@ object BaseRepository {
       .transact(xa)
   }
 
-  def update(
-      xa: Transactor[IO],
-      fragment: Fragment
-  ): IO[Int] = {
-    fragment.update.run
-      .transact(xa)
-  }
 
-  def delete(
-      xa: Transactor[IO],
-      fragment: Fragment
-  ): IO[Int] = {
-    fragment.update.run
-      .transact(xa)
-  }
+
 }

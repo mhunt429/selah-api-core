@@ -36,7 +36,7 @@ class UserServiceImpl(
     AccountValidationService.validateUser(user) match {
       case Valid(u) =>
         appUserRepository
-          .createUser(mapCreateUserRequestToDbInsert(user))
+          .createUserWithCommit(mapCreateUserRequestToDbInsert(user))
           .map(createdId => {
             Right(
               AppUserViewModel(

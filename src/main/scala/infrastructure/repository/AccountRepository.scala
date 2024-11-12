@@ -1,30 +1,42 @@
 package infrastructure.repository
 
 import cats.effect.IO
+import cats.implicits.*
 import core.models.Account.*
+import core.models.AppUser.AppUserInsert
 import doobie.implicits.*
-import doobie.implicits.javatimedrivernative.*
-import doobie.{Meta, Transactor}
 import doobie.implicits.javasql.TimestampMeta
+import doobie.*
+
 import java.sql.Timestamp
 import java.time.Instant
 
 trait AccountRepository {
-  def createAccount(accountName: String): IO[Long]
+  def createAccount(accountName: String, appUserInsert: AppUserInsert): IO[Long]
   def getAccount(id: Long): IO[Option[Account]]
 
   def updateAccount(id: Long, accountName: String): IO[Int]
 }
 
-class AccountRepositoryImpl(xa: Transactor[IO]) extends AccountRepository {
+class AccountRepositoryImpl(
+    xa: Transactor[IO],
+    appUserRepository: AppUserRepository
+) extends AccountRepository {
   implicit val instantMeta: Meta[Instant] =
     Meta[Timestamp].imap(_.toInstant)(Timestamp.from)
 
-  def createAccount(accountName: String): IO[Long] = {
-    for {
+  def createAccount(
+      accountName: String,
+      appUserInsert: AppUserInsert
+  ): IO[Long] = {
+    val transaction: ConnectionIO[Long] = for {
       id <- BaseRepository.insertWithId(xa, createAccountSql(accountName))
       _ <- updateAccountLastChangeBy(id)
+      userId <- appUserRepository.createUser(appUserInsert.copy(accountId = id))
+      _ <- appUserRepository.updateAccountLastChangeBy(userId)
     } yield id
+
+    transaction.transact(xa)
   }
 
   def getAccount(id: Long): IO[Option[Account]] = {
@@ -33,7 +45,9 @@ class AccountRepositoryImpl(xa: Transactor[IO]) extends AccountRepository {
   }
 
   def updateAccount(id: Long, accountName: String): IO[Int] = {
-    BaseRepository.update(xa, updateAccountSql(id, accountName))
+    BaseRepository
+      .update(xa, updateAccountSql(id, accountName))
+      .transact(xa)
   }
 
   private def getAccountSql(id: Long) = {

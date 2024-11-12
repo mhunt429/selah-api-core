@@ -22,5 +22,5 @@ class Repository(xa: Transactor[IO]) {
     
   val appUserRepository: AppUserRepositoryImpl = new AppUserRepositoryImpl(xa)
   
-  val accountRepository: AccountRepositoryImpl = new AccountRepositoryImpl(xa)
+  val accountRepository: AccountRepositoryImpl = new AccountRepositoryImpl(xa, appUserRepository)
 }
