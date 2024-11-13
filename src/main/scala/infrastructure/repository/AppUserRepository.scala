@@ -54,11 +54,7 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
 
   private def getUserQuery(id: Long) = {
     sql"""
-         SELECT id,
-         email,
-         first_name,
-         last_name,
-         date_created FROM app_user WHERE id = $id"""
+         SELECT * from app_user WHERE id = $id"""
   }
   private def createUserSql(createdUser: AppUserInsert) = {
     sql"""
