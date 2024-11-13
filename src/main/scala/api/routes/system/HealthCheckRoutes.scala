@@ -2,7 +2,7 @@ package api.routes.system
 
 import application.services.HealthCheckService
 import cats.effect.IO
-import core.json.BaseHttpJson.*
+import core.json.BaseJson.*
 import core.json.HealthCheckJson.*
 import core.models.Http.HttpResponse
 import core.models.{HealthCheck, PostgreSQL}

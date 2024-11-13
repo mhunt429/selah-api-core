@@ -4,7 +4,7 @@ import core.models.Account.AccountCreateResponse
 import core.models.Registration.RegistrationHttpRequest
 import io.circe.*
 import io.circe.generic.semiauto.*
-
+import BaseJson._
 object AccountJson {
 
   implicit val accountCreateEncoder: Encoder[RegistrationHttpRequest] =

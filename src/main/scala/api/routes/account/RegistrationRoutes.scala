@@ -3,7 +3,7 @@ package api.routes.account
 import application.services.account.RegistrationService
 import cats.effect.IO
 import core.json.AccountJson.*
-import core.json.BaseHttpJson.*
+import core.json.BaseJson.*
 import core.models.Account.AccountCreateResponse
 import core.models.Http.HttpResponse
 import core.models.Registration.RegistrationHttpRequest

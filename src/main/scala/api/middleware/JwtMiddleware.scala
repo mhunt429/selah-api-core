@@ -30,7 +30,8 @@ object JwtMiddleware {
     }
 
     // Validate the token and return AuthenticatedUser or error message
-    val validateToken: Kleisli[IO, Request[IO], Either[String, AppRequestContext]] =
+    val validateToken
+        : Kleisli[IO, Request[IO], Either[String, AppRequestContext]] =
       Kleisli { request =>
         IO(tokenExtractor(request).flatMap { token =>
           verifyToken(token, config.securityConfig.jwtSecret, request.headers)
@@ -60,15 +61,16 @@ object JwtMiddleware {
         .build()
 
       val decodedJWT: DecodedJWT = verifier.verify(token)
-      val appRequestContextId = decodedJWT.getClaim("subject").asString()
-      val ipAddress =  headers
+      val appRequestContextId = decodedJWT.getClaim("sub").asString()
+      val ipAddress = headers
         .get(CaseInsensitiveString("x-forwared-for"))
-      
+
       Right(
         AppRequestContext(
-          id = appRequestContextId, 
+          id = appRequestContextId,
           ipAddress = ipAddress.map(_.head.value),
-          requestId = UUID.randomUUID())
+          requestId = UUID.randomUUID()
+        )
       )
     } catch {
       case _: JWTVerificationException => Left("Invalid or expired token")

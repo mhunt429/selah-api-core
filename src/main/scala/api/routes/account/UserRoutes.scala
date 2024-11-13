@@ -2,7 +2,7 @@ package api.routes.account
 
 import application.services.account.UserService
 import cats.effect.IO
-import core.json.BaseHttpJson.*
+import core.json.BaseJson.*
 import core.json.UserJson.*
 import core.models.AppUser.{AppUserCreateRequest, AppUserViewModel}
 import core.models.Application.AppRequestContext

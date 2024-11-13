@@ -12,7 +12,7 @@ import java.sql.Timestamp
 import java.time.Instant
 
 trait AccountRepository {
-  def createAccount(accountName: String, appUserInsert: AppUserInsert): IO[Long]
+  def createAccount(accountName: String, appUserInsert: AppUserInsert): IO[(Long, Long)]
   def getAccount(id: Long): IO[Option[Account]]
 
   def updateAccount(id: Long, accountName: String): IO[Int]
@@ -28,13 +28,13 @@ class AccountRepositoryImpl(
   def createAccount(
       accountName: String,
       appUserInsert: AppUserInsert
-  ): IO[Long] = {
-    val transaction: ConnectionIO[Long] = for {
-      id <- BaseRepository.insertWithId(xa, createAccountSql(accountName))
-      _ <- updateAccountLastChangeBy(id)
-      userId <- appUserRepository.createUser(appUserInsert.copy(accountId = id))
+  ): IO[(Long, Long)] = {
+    val transaction: ConnectionIO[(Long, Long)] = for {
+      accountId <- BaseRepository.insertWithId(xa, createAccountSql(accountName))
+      _ <- updateAccountLastChangeBy(accountId)
+      userId <- appUserRepository.createUser(appUserInsert.copy(accountId = accountId))
       _ <- appUserRepository.updateAccountLastChangeBy(userId)
-    } yield id
+    } yield (accountId, userId)
 
     transaction.transact(xa)
   }
