@@ -1,17 +1,18 @@
-package api.routes
+package api.routes.account
 
 import application.services.account.UserService
 import cats.effect.IO
+import core.json.BaseHttpJson.*
 import core.json.UserJson.*
-import core.models.AppUser.AppUserCreateRequest
+import core.models.AppUser.{AppUserCreateRequest, AppUserViewModel}
 import core.models.Application.AppRequestContext
-import io.circe.*
+import core.models.Http.HttpResponse
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.CirceSensitiveDataEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.{AuthMiddleware, Router}
 import org.http4s.{AuthedRoutes, HttpRoutes}
-
+import utils.HttpHelpers
 final case class UserRoutes(
     userService: UserService
 ) extends Http4sDsl[IO] {
@@ -31,10 +32,14 @@ final case class UserRoutes(
           userService.getUserByEmail(newUser.email).flatMap {
             case Some(_) => BadRequest() // Email already exists
             case None =>
-              userService.createUser(newUser)(appRequestContext).flatMap {
-                case Right(id)              => Ok(id)
-                case Left(validationErrors) => BadRequest(validationErrors)
-              }
+              HttpHelpers
+                .mapValidationResultToHttpResult[AppUserViewModel](
+                  userService.createUser(newUser)(appRequestContext)
+                )
+                .flatMap {
+                  case response@HttpResponse(200, data, _) => Ok(response)
+                  case response => BadRequest(response)
+                }
           }
         }
     }

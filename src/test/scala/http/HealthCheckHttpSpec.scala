@@ -1,6 +1,6 @@
 package http
 
-import api.routes.HealthCheckRoutes
+import api.routes.system.HealthCheckRoutes
 import application.services.HealthCheckService
 import cats.effect.*
 import cats.effect.unsafe.IORuntime

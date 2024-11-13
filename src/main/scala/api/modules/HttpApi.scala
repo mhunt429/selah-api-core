@@ -1,8 +1,8 @@
 package api.modules
 
 import api.middleware.{ErrorHandlingMiddleware, JwtMiddleware, MetricsMiddleware}
-import api.routes.account.RegistrationRoutes
-import api.routes.{HealthCheckRoutes, MetricsRoutes, UserRoutes}
+import api.routes.account.{RegistrationRoutes, UserRoutes}
+import api.routes.system.{HealthCheckRoutes, MetricsRoutes}
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
 import core.config.Config
@@ -61,9 +61,9 @@ sealed abstract class HttpApi[F[_]: Async] private (
   }
   private val loggers: HttpApp[IO] => HttpApp[IO] = {
     { (http: HttpApp[IO]) =>
-      RequestLogger.httpApp(true, false)(http)
+      RequestLogger.httpApp(false, false)(http)
     } andThen { (http: HttpApp[IO]) =>
-      (ResponseLogger.httpApp(true, false)(http))
+      (ResponseLogger.httpApp(false, false)(http))
 
     }
   }

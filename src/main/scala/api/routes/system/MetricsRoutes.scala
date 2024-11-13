@@ -1,4 +1,4 @@
-package api.routes
+package api.routes.system
 
 import cats.effect.*
 import io.prometheus.client.CollectorRegistry

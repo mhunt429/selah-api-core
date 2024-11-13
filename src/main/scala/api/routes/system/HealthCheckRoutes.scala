@@ -1,7 +1,10 @@
-package api.routes
+package api.routes.system
 
 import application.services.HealthCheckService
 import cats.effect.IO
+import core.json.BaseHttpJson.*
+import core.json.HealthCheckJson.*
+import core.models.Http.HttpResponse
 import core.models.{HealthCheck, PostgreSQL}
 import io.circe.*
 import io.circe.generic.semiauto.*
@@ -9,9 +12,6 @@ import org.http4s.*
 import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
-import core.json.HealthCheckJson.*
-import core.json.BaseHttpJson.*
-import core.models.Http.HttpResponse
 
 final case class HealthCheckRoutes(
     healthCheckService: HealthCheckService
