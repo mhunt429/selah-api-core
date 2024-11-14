@@ -52,16 +52,4 @@ jobs:
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: Build and Test
-        run: sbt clean coverage test
-
-      - name: Generate Coverage Report
-        run: sbt coverageReport coverageAggregate
-      - name: List target directory (for debugging)
-        run: ls -R ./target
-
-      - name: Upload Coverage to Codecov
-        uses: codecov/codecov-action@v2
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./target/scala-*/scoverage-report/scoverage.xml
-          fail_ci_if_error: true
+        run: sbt compile test
