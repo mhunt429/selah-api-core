@@ -1,4 +1,4 @@
-package application.services
+package application.services.account
 
 import cats.data.{NonEmptyList, Validated, ValidatedNel}
 import cats.effect.IO

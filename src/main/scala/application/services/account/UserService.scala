@@ -1,7 +1,5 @@
 package application.services.account
 
-
-import application.services.AccountValidationService
 import application.services.security.CryptoService
 import cats.data.Validated.{Invalid, Valid}
 import cats.data.{NonEmptyList, Validated, ValidatedNel}

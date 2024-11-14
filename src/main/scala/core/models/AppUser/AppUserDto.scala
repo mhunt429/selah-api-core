@@ -30,7 +30,6 @@ case class AppUserCreateRequest(
     dateCreated: Instant = Instant.now()
 )
 
-//The below class should be used
 case class AppUserUpdateDto(
     email: String,
     phone: String,

@@ -2,6 +2,7 @@ package api.modules
 
 import api.middleware.{ErrorHandlingMiddleware, JwtMiddleware, MetricsMiddleware}
 import api.routes.account.{RegistrationRoutes, UserRoutes}
+import api.routes.identity.IdentityRoutes
 import api.routes.system.{HealthCheckRoutes, MetricsRoutes}
 import cats.effect.{Async, IO}
 import cats.syntax.all.*
@@ -45,8 +46,11 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val userRoutes: HttpRoutes[IO] =
     UserRoutes(services.userService).routes(authMiddleware)
 
+  private val identityRoutes: HttpRoutes[IO] =
+    IdentityRoutes(services.userService).routes(authMiddleware)
+
   private val routes: HttpRoutes[IO] = Router(
-    "api/" -> (publicRoutes <+> userRoutes <+> registrationRoutes),
+    "api/" -> (publicRoutes <+> userRoutes <+> registrationRoutes <+> identityRoutes),
     "" -> (healthRoutes <+> metricsRoutes)
   )
 

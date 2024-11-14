@@ -1,4 +1,4 @@
-name: Scala Build and Test
+name: Scala Build, Test, and Coverage
 
 on:
   pull_request:
@@ -9,7 +9,7 @@ env:
 
 jobs:
   run:
-    name: Build and Run
+    name: Build, Test, and Coverage
     strategy:
       matrix:
         java-version: [ 8, 11, 17 ]
@@ -37,7 +37,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           distribution: 'adopt'
-          java-version: '17'
+          java-version: ${{ matrix.java-version }}
 
       - name: Cache sbt
         uses: actions/cache@v2
@@ -47,9 +47,17 @@ jobs:
             ~/.ivy2/cache
             ~/.coursier/cache/v1
             ~/.cache/coursier/v1
-            ~/AppData/Local/Coursier/Cache/v1
-            ~/Library/Caches/Coursier/v1
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
-      - name: Build and test
-        run: sbt compile test
+      - name: Build and Test
+        run: sbt clean coverage test
+
+      - name: Generate Coverage Report
+        run: sbt coverageReport coverageAggregate
+
+      - name: Upload Coverage to Codecov
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./target/scala-*/scoverage-report/scoverage.xml
+          fail_ci_if_error: true

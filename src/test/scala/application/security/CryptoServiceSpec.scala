@@ -1,4 +1,4 @@
-package application
+package application.security
 
 import application.services.security.CryptoService
 import org.hashids.Hashids

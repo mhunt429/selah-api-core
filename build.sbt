@@ -9,6 +9,7 @@ lazy val root = project
     name := "selah-api",
     version := "0.1.0-SNAPSHOT",
     scalaVersion := scala3Version,
+    coverageEnabled := true,
     resolvers ++= Seq(
       Resolver.mavenCentral
     ),
