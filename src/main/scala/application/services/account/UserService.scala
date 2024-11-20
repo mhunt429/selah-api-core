@@ -2,24 +2,25 @@ package application.services.account
 
 import application.services.security.CryptoService
 import cats.data.Validated.{Invalid, Valid}
-import cats.data.{NonEmptyList, Validated, ValidatedNel}
+import cats.data.{NonEmptyList, Validated}
 import cats.effect.IO
 import cats.implicits.*
 import core.models.AppUser.{AppUserCreateRequest, AppUserInsert, AppUserViewModel}
 import core.models.Application.AppRequestContext
-import core.validation.{ValidationError, ValidationErrors}
+import core.validation.ValidationError
 import infrastructure.repository.AppUserRepository
 import org.slf4j.LoggerFactory
 import utils.StringUtilities
 
 import java.time.Instant
-import java.util.Base64
 
 trait UserService {
   def getUser(id: String): IO[Option[AppUserViewModel]]
   def createUser(
       user: AppUserCreateRequest
-  )(implicit appRequestContext: AppRequestContext): IO[Either[List[String], AppUserViewModel]]
+  )(implicit
+      appRequestContext: AppRequestContext
+  ): IO[Either[List[String], AppUserViewModel]]
 
   def getUserByEmail(email: String): IO[Option[String]]
 }
@@ -30,7 +31,9 @@ class UserServiceImpl(
   private val logger = LoggerFactory.getLogger(getClass)
   def createUser(
       user: AppUserCreateRequest
-  )(implicit appRequestContext: AppRequestContext): IO[Either[List[String], AppUserViewModel]] = {
+  )(implicit
+      appRequestContext: AppRequestContext
+  ): IO[Either[List[String], AppUserViewModel]] = {
     AccountValidationService.validateUser(user) match {
       case Valid(u) =>
         appUserRepository
@@ -58,17 +61,20 @@ class UserServiceImpl(
     val decodedId: Long = cryptoService.decodeHashId(id)
     appUserRepository.getUser(decodedId).map {
       case Some(u) =>
-        val fullName = cryptoService.decrypt(StringUtilities.convertBase64ToBytes(u.encryptedName))
+        val fullName = cryptoService
+          .decrypt(StringUtilities.convertBase64ToBytes(u.encryptedName))
         val splitName = fullName.split(":")
         Some(
           AppUserViewModel(
             id = id,
             accountId = cryptoService.encodeHashId(u.accountId),
-            email = cryptoService.decrypt(StringUtilities.convertBase64ToBytes(u.encryptedEmail)),
+            email = cryptoService
+              .decrypt(StringUtilities.convertBase64ToBytes(u.encryptedEmail)),
             username = u.username,
             firstName = splitName.head,
             lastName = splitName.last,
-            phone = cryptoService.decrypt(StringUtilities.convertBase64ToBytes(u.encryptedPhone)),
+            phone = cryptoService
+              .decrypt(StringUtilities.convertBase64ToBytes(u.encryptedPhone)),
             dateCreated = u.createdDate
           )
         )
@@ -79,21 +85,31 @@ class UserServiceImpl(
   def getUserByEmail(email: String): IO[Option[String]] = {
     val encryptedEmail: Array[Byte] = cryptoService.encrypt(email)
     val encodedEmail = StringUtilities.convertBytesToBase64(encryptedEmail)
-    appUserRepository.getUserByEmail(encodedEmail).handleErrorWith { e =>
-      IO.pure(None) 
-    }
+    appUserRepository.getUserByEmail(encodedEmail)
   }
-  
-  private def mapCreateUserRequestToDbInsert( user: AppUserCreateRequest)(implicit appRequestContext: AppRequestContext): AppUserInsert = {
+
+  private def mapCreateUserRequestToDbInsert(
+      user: AppUserCreateRequest
+  )(implicit appRequestContext: AppRequestContext): AppUserInsert = {
+    val appLastChangedBy = cryptoService.decodeHashId(appRequestContext.id)
+    val accountId = cryptoService.decodeHashId(user.accountId)
+    val encryptedEmail =
+      StringUtilities.convertBytesToBase64(cryptoService.encrypt(user.email))
+    val password = cryptoService.hashPassword(user.password)
+    val encryptedName = StringUtilities.convertBytesToBase64(
+      cryptoService.encrypt(s"${user.firstName}:${user.lastName}")
+    )
+    val encryptedPhone =
+      StringUtilities.convertBytesToBase64(cryptoService.encrypt(user.phone))
+
     AppUserInsert(
-      appLastChangedBy = cryptoService.decodeHashId(appRequestContext.id),
+      appLastChangedBy = appLastChangedBy,
       accountId = cryptoService.decodeHashId(user.accountId),
-      encryptedEmail = StringUtilities.convertBytesToBase64(cryptoService.encrypt(user.email)),
+      encryptedEmail = encryptedEmail,
       username = user.username,
-      password = cryptoService.hashPassword(user.password),
-      encryptedName =
-        StringUtilities.convertBytesToBase64(cryptoService.encrypt(s"${user.firstName}:${user.lastName}")),
-      encryptedPhone = StringUtilities.convertBytesToBase64(cryptoService.encrypt(user.phone)),
+      password = password,
+      encryptedName = encryptedName,
+      encryptedPhone = encryptedPhone,
       lastLoginIp = appRequestContext.ipAddress,
       phoneVerified = Some(false),
       emailVerified = Some(false)

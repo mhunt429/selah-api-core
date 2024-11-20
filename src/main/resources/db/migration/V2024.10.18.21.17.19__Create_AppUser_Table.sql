@@ -1,8 +1,5 @@
 CREATE TABLE app_user
 (
-    original_insert     TIMESTAMPTZ NOT NULL,
-    last_update         TIMESTAMPTZ NOT NULL,
-    app_last_changed_by BIGINT      NOT NULL,
     id                  BIGSERIAL PRIMARY KEY,
     account_id          BIGSERIAL references account (id),
     created_date        TIMESTAMPTZ,
@@ -18,7 +15,7 @@ CREATE TABLE app_user
 
     UNIQUE (username)
 
-);
+) INHERITS (base_audit_table);
 
 CREATE INDEX user_email_index on app_user (encrypted_email);
 CREATE INDEX user_phone_index on app_user (encrypted_phone);

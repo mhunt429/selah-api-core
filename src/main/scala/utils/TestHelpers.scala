@@ -24,7 +24,9 @@ object TestHelpers {
       jwtSecret =
         "szDAEw0HrY3Z5aYnKMA4WZxbvtqAeOcTsWmQub5MzYEUCVM+1mq/fHQD40amI5VFrwmoqiRxqSnbQF32IkAdMk3QtMIV/QvZSzZ6TEZJCJIDXpHRnFBpccV1gZwN8xY82x8VZ3tkcHnlYbqZ4D8Xki8Cyu/so9cNPYyWLqQDPncjvW3gF0E5xhoPytOBMsmGeMC3qscUXVP38nImeOmDBGPzWKdWTSqJcEIyoLcExFaFCHOt5M3zJcB1o1HAp9yodOnbBurXuNXSspmMVTOF7eICMHPQQfP6FZdFuf+4Z4BmCsrne0KqOnpWg4lgpU8GnV2RyrefCiwCXty1gA3tag==",
       cryptoSecret =
-        "3ca5a1185b613cee4ba947839490427c36f1994809cb9a603c2a3717dd39d475"
+        "3ca5a1185b613cee4ba947839490427c36f1994809cb9a603c2a3717dd39d475",
+      accessTokenExpiryMinutes = 60,
+      refreshTokenExpiryDays = 30
     )
   )
 

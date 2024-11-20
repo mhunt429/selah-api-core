@@ -64,25 +64,21 @@ class RegistrationServiceImpl(
       userId: String
   ): AccessTokenResponse = {
     val now = Instant.now()
-    val accessTokenExpiration = Date.from(now.plus(Duration.ofHours(1)))
-    val refreshTokenExpiration = Date.from(now.plus(Duration.ofDays(30)))
-
-    val accessToken: String = tokenService.generateToken(
+    val accessToken = tokenService.generateToken(
       userId,
-      tokenType = TokenType.Access,
-      expiration = accessTokenExpiration
+      tokenType = TokenType.Access
     )
-    val refreshToken: String = tokenService.generateToken(
+    val refreshToken = tokenService.generateToken(
       userId,
-      tokenType = TokenType.Refresh,
-      expiration = refreshTokenExpiration
+      tokenType = TokenType.Refresh
     )
+    
     AccessTokenResponse(
       sessionId = UUID.randomUUID(),
-      accessToken = accessToken,
-      refreshToken = refreshToken,
-      accessTokenExpiration = accessTokenExpiration,
-      refreshTokenExpiration = refreshTokenExpiration
+      accessToken = accessToken.token,
+      refreshToken = refreshToken.token,
+      accessTokenExpiration = accessToken.expiration,
+      refreshTokenExpiration = refreshToken.expiration
     )
   }
 

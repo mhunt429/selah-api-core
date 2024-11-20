@@ -12,6 +12,7 @@ import org.http4s.circe.CirceEntityEncoder.*
 import org.http4s.circe.CirceSensitiveDataEntityDecoder.circeEntityDecoder
 import org.http4s.dsl.Http4sDsl
 import org.http4s.server.Router
+import utils.HttpHelpers
 
 final case class RegistrationRoutes(
     registrationService: RegistrationService
@@ -20,23 +21,14 @@ final case class RegistrationRoutes(
   private val registrationRoutes: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case req @ POST -> Root =>
       req.decode[RegistrationHttpRequest] { account =>
-        registrationService.registerAccount(account).flatMap {
-          case Right(account) =>
-            Ok(
-              HttpResponse[AccountCreateResponse](
-                statusCode = 200,
-                data = Some(account)
-              )
-            )
-          case Left(errors) =>
-            BadRequest(
-              HttpResponse[AccountCreateResponse](
-                statusCode = 400,
-                data = None,
-                errors = errors
-              )
-            )
-        }
+        HttpHelpers
+          .mapValidationResultToHttpResult[AccountCreateResponse](
+            registrationService.registerAccount(account)
+          )
+          .flatMap {
+            case response@HttpResponse(200, data, _) => Ok(response)
+            case response => BadRequest(response)
+          }
       }
   }
 

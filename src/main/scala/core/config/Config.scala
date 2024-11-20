@@ -9,5 +9,7 @@ final case class Config(
 final case class SecurityConfig(
     hashIdSalt: String,
     jwtSecret: String,
-    cryptoSecret: String
+    cryptoSecret: String,
+    accessTokenExpiryMinutes: Int,
+    refreshTokenExpiryDays: Int
 )
