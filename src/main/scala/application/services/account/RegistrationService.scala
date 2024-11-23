@@ -9,10 +9,9 @@ import core.models.AppUser.AppUserInsert
 import core.models.Registration.RegistrationHttpRequest
 import infrastructure.repository.{AccountRepository, AppUserRepository}
 import org.slf4j.LoggerFactory
-import utils.StringUtilities
 
-import java.time.{Duration, Instant}
-import java.util.{Date, UUID}
+import java.time.Instant
+import java.util.UUID
 
 trait RegistrationService {
 
@@ -72,7 +71,7 @@ class RegistrationServiceImpl(
       userId,
       tokenType = TokenType.Refresh
     )
-    
+
     AccessTokenResponse(
       sessionId = UUID.randomUUID(),
       accessToken = accessToken.token,
@@ -85,21 +84,24 @@ class RegistrationServiceImpl(
   private def mapRegistrationRequestToUserDataAccess(
       request: RegistrationHttpRequest
   ): AppUserInsert = {
+    val encryptedEmail =
+      cryptoService.encryptToBase64(request.email)
+    val password = cryptoService.hashPassword(request.password)
+    val encryptedName =
+      cryptoService.encryptToBase64(s"${request.firstName}:${request.lastName}")
+
+    val encryptedPhone =
+      cryptoService.encryptToBase64(request.phone)
+
     AppUserInsert(
       //The -1(s) will get updated by the transaction chains
       appLastChangedBy = -1,
       accountId = -1,
-      encryptedEmail = StringUtilities.convertBytesToBase64(
-        cryptoService.encrypt(request.email)
-      ),
+      encryptedEmail = encryptedEmail,
       username = request.username,
-      password = cryptoService.hashPassword(request.password),
-      encryptedName = StringUtilities.convertBytesToBase64(
-        cryptoService.encrypt(s"${request.firstName}:${request.lastName}")
-      ),
-      encryptedPhone = StringUtilities.convertBytesToBase64(
-        cryptoService.encrypt(request.phone)
-      ),
+      password = password,
+      encryptedName = encryptedName,
+      encryptedPhone = encryptedPhone,
       lastLoginIp = None,
       phoneVerified = Some(false),
       emailVerified = Some(false)

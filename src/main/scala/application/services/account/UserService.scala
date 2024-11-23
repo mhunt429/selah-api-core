@@ -94,13 +94,13 @@ class UserServiceImpl(
     val appLastChangedBy = cryptoService.decodeHashId(appRequestContext.id)
     val accountId = cryptoService.decodeHashId(user.accountId)
     val encryptedEmail =
-      StringUtilities.convertBytesToBase64(cryptoService.encrypt(user.email))
+      cryptoService.encryptToBase64(user.email)
     val password = cryptoService.hashPassword(user.password)
-    val encryptedName = StringUtilities.convertBytesToBase64(
-      cryptoService.encrypt(s"${user.firstName}:${user.lastName}")
-    )
+    val encryptedName =
+      cryptoService.encryptToBase64(s"${user.firstName}:${user.lastName}")
+
     val encryptedPhone =
-      StringUtilities.convertBytesToBase64(cryptoService.encrypt(user.phone))
+      cryptoService.encryptToBase64(user.phone)
 
     AppUserInsert(
       appLastChangedBy = appLastChangedBy,

@@ -1,14 +1,16 @@
 package application.services.security
 
 import core.config.Config
+import core.security.{CommonPII, EncryptedPII}
 import org.hashids.Hashids
-import utils.StringUtilities
 import org.mindrot.jbcrypt.BCrypt
+import utils.StringUtilities
+
 import java.security.SecureRandom
 import javax.crypto.Cipher
 import javax.crypto.spec.{IvParameterSpec, SecretKeySpec}
 
-class CryptoService( config: Config, hashService: Hashids) {
+class CryptoService(config: Config, hashService: Hashids) {
   private final val AES_KEY =
     StringUtilities.hexStringToByteArray(config.securityConfig.cryptoSecret)
 
@@ -20,12 +22,12 @@ class CryptoService( config: Config, hashService: Hashids) {
     val ivSpec = new IvParameterSpec(iv)
 
     val cryptoCipher =
-      Cipher.getInstance("AES/CBC/PKCS5Padding") 
+      Cipher.getInstance("AES/CBC/PKCS5Padding")
     cryptoCipher.init(Cipher.ENCRYPT_MODE, secretKey, ivSpec)
 
     val encryptedBytes = cryptoCipher.doFinal(plainText.getBytes("UTF-8"))
 
-    iv ++ encryptedBytes 
+    iv ++ encryptedBytes
   }
 
   def decrypt(encryptedData: Array[Byte]): String = {
@@ -42,6 +44,9 @@ class CryptoService( config: Config, hashService: Hashids) {
 
     new String(decryptedBytes, "UTF-8")
   }
+
+  def encryptToBase64(value: String): String =
+    StringUtilities.convertBytesToBase64(encrypt(value))
 
   def decodeHashId(id: String): Long = {
     //HashIds returns a list of ints but if bad id gets sent over, it will return a empty list
@@ -63,4 +68,23 @@ class CryptoService( config: Config, hashService: Hashids) {
   def checkPassword(plainText: String, hashedPassword: String): Boolean = {
     BCrypt.checkpw(plainText, hashedPassword)
   }
+
+  def encryptCommonPII(pii: CommonPII): EncryptedPII = {
+    val encryptedEmail: String =
+      StringUtilities.convertBytesToBase64(encrypt(pii.email))
+    val encryptedPassword: String = hashPassword(pii.password)
+    val encryptedName: String = StringUtilities.convertBytesToBase64(
+      encrypt(s"${pii.firstName}:${pii.lastName}")
+    )
+    val encryptedPhone: String =
+      StringUtilities.convertBytesToBase64(encrypt(pii.phone))
+
+    EncryptedPII(
+      encryptedEmail = encryptToBase64(pii.email),
+      encryptedPassword = hashPassword(pii.password),
+      encryptedName = encryptToBase64(s"${pii.firstName}:${pii.lastName}"),
+      encryptedPhone = encryptToBase64(pii.phone)
+    )
+  }
+
 }

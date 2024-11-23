@@ -23,8 +23,9 @@ final case class UserRoutes(
     AuthedRoutes.of {
       case GET -> Root / id as appRequestContext =>
         userService.getUser(id).flatMap {
-          case Some(userData) => Ok(userData)
-          case None           => NotFound()
+          case Some(userData) =>
+            Ok(HttpHelpers.getSuccessResult[AppUserViewModel](userData, 200))
+          case None => NotFound()
         }
 
       case req @ POST -> Root as appRequestContext =>
@@ -37,7 +38,8 @@ final case class UserRoutes(
                   userService.createUser(newUser)(appRequestContext)
                 )
                 .flatMap {
-                  case response@HttpResponse(200, data, _) => Ok(response)
+                  case response @ HttpResponse(200, data, _) =>
+                    Created(response)
                   case response => BadRequest(response)
                 }
           }

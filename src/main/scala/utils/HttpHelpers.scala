@@ -22,4 +22,11 @@ object HttpHelpers extends Http4sDsl[IO] {
         )
     }
   }
+
+  //Use for 200, 201s and 204s
+  def getSuccessResult[A](data: A, statusCode: Int): HttpResponse[A] =
+    HttpResponse[A](
+      statusCode = statusCode,
+      data = Some(data)
+    )
 }
