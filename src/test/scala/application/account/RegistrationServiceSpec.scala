@@ -1,11 +1,13 @@
 package application.account
 
-import application.services.security.CryptoService
+import application.services.account.RegistrationServiceImpl
+import application.services.security.{CryptoService, TokenService}
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import core.models.Account.Account
+import core.models.Account.{Account, AccountCreateResponse}
 import core.models.AppUser.{AppUser, AppUserInsert}
 import core.models.Registration.RegistrationHttpRequest
+import core.validation.ValidationErrors
 import doobie.free.*
 import infrastructure.repository.{AccountRepository, AppUserRepository}
 import org.hashids.Hashids
@@ -49,9 +51,17 @@ class RegistrationServiceSpec extends AnyFlatSpec with Matchers {
       IO.pure(None)
   }
 
-  "RegistrationServiceSpec" should "create a valid account" in {
+  val cryptoService = new CryptoService(testConfig, hashIds)
+  val tokenService = new TokenService(testConfig)
 
-    val cryptoService = new CryptoService(testConfig, hashIds)
+  var registrationService = new RegistrationServiceImpl(
+    accountRepositoryMock,
+    appUserRepoMock,
+    cryptoService,
+    tokenService
+  )
+
+  "RegistrationServiceSpec" should "create a valid account" in {
 
     val validAccount = RegistrationHttpRequest(
       accountName = Some("My Family"),
@@ -63,6 +73,34 @@ class RegistrationServiceSpec extends AnyFlatSpec with Matchers {
       firstName = "Test",
       lastName = "User"
     )
+
+    val result =
+      registrationService.registerAccount(validAccount).unsafeRunSync()
+    result.isRight shouldBe true
+
   }
 
+  it should "validate against an invalid account creation request " in {
+    val invalidAccount = RegistrationHttpRequest(
+      accountName = None,
+      username = "",
+      email = "",
+      password = "",
+      passwordConfirmation = "",
+      phone = "",
+      firstName = "",
+      lastName = ""
+    )
+
+    val result =
+      registrationService.registerAccount(invalidAccount).unsafeRunSync()
+    result shouldBe Left(
+      List(
+        ValidationErrors.InvalidEmail.message,
+        ValidationErrors.FirstNameNotEmpty.message,
+        ValidationErrors.LastNameNotEmpty.message,
+        ValidationErrors.PasswordNotEmpty.message
+      )
+    )
+  }
 }
