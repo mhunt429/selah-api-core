@@ -18,11 +18,9 @@ final case class HealthCheckRoutes(
   private[routes] val prefixPath = "/healthcheck"
   private val httpRoutes: HttpRoutes[IO] = HttpRoutes.of[IO] {
     case GET -> Root =>
-      healthCheckService.status.flatMap {
-        case healthCheck: HealthCheck =>
-          Ok(HttpHelpers.getSuccessResult[HealthCheck](healthCheck, 200))
-        case _ => BadGateway()
-      }
+      healthCheckService.status.flatMap(healthCheck =>
+        Ok(HttpHelpers.getSuccessResult[HealthCheck](healthCheck, 200))
+      )
   }
 
   val routes: HttpRoutes[IO] = Router(
