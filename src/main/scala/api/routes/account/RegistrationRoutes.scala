@@ -26,8 +26,8 @@ final case class RegistrationRoutes(
             registrationService.registerAccount(account)
           )
           .flatMap {
-            case response@HttpResponse(200, data, _) => Ok(response)
-            case response => BadRequest(response)
+            case response @ HttpResponse(200, data, _) => Created(response)
+            case response                              => BadRequest(response)
           }
       }
   }
