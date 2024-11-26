@@ -2,6 +2,7 @@ package infrastructure.repository
 
 import cats.effect.IO
 import core.models.AppUser.*
+import core.models.AppUser.sql.{AppUser, AppUserInsert}
 import doobie.*
 import doobie.implicits.*
 import doobie.implicits.javasql.TimestampMeta

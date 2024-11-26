@@ -2,6 +2,7 @@ package core.json
 
 
 import core.models.AppUser.*
+import core.models.AppUser.sql.{AppUser, AppUserUpdate}
 import io.circe.*
 import io.circe.generic.semiauto.*
 

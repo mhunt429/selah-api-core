@@ -1,4 +1,4 @@
-package core.models.AppUser
+package core.models.AppUser.sql
 
 import java.time.Instant
 

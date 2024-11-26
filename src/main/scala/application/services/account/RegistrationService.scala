@@ -5,7 +5,7 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.effect.IO
 import core.identity.{AccessTokenResponse, TokenType}
 import core.models.Account.AccountCreateResponse
-import core.models.AppUser.AppUserInsert
+import core.models.AppUser.sql.AppUserInsert
 import core.models.Registration.RegistrationHttpRequest
 import infrastructure.repository.{AccountRepository, AppUserRepository}
 import org.slf4j.LoggerFactory

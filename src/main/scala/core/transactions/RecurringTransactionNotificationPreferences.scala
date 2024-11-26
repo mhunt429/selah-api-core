@@ -1,0 +1,10 @@
+package core.transactions
+
+sealed trait RecurringTransactionNotificationPreferences
+case object None extends RecurringTransactionNotificationPreferences
+
+case object Email extends RecurringTransactionNotificationPreferences
+
+case object Text extends RecurringTransactionNotificationPreferences
+
+case object PushNotification extends RecurringTransactionNotificationPreferences

@@ -5,7 +5,7 @@ import application.services.security.{CryptoService, TokenService}
 import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import core.models.Account.{Account, AccountCreateResponse}
-import core.models.AppUser.{AppUser, AppUserInsert}
+import core.models.AppUser.sql.{AppUser, AppUserInsert}
 import core.models.Registration.RegistrationHttpRequest
 import core.validation.ValidationErrors
 import doobie.free.*

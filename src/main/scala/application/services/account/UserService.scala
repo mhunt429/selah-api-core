@@ -5,7 +5,8 @@ import cats.data.Validated.{Invalid, Valid}
 import cats.data.{NonEmptyList, Validated}
 import cats.effect.IO
 import cats.implicits.*
-import core.models.AppUser.{AppUserCreateRequest, AppUserInsert, AppUserViewModel}
+import core.models.AppUser.sql.AppUserInsert
+import core.models.AppUser.{AppUserCreateRequest, AppUserViewModel}
 import core.models.Application.AppRequestContext
 import core.validation.ValidationError
 import infrastructure.repository.AppUserRepository

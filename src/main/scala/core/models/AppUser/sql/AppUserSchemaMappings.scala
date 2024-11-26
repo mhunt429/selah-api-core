@@ -1,5 +1,6 @@
-package core.models.AppUser
+package core.models.AppUser.sql
 
+import core.models.AppUser.sql.AppUser
 import doobie.postgres.implicits.*
 import doobie.{Meta, Read}
 
