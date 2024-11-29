@@ -18,7 +18,7 @@ final case class IdentityRoutes(userService: UserService)
 
   private val identityRoutes: AuthedRoutes[AppRequestContext, IO] =
     AuthedRoutes.of { case GET -> Root / "current-user" as appRequestContext =>
-      userService.getUser(appRequestContext.id).flatMap {
+      userService.getUser(appRequestContext.userId).flatMap {
         case Some(user) =>
           Ok(
             HttpHelpers.getSuccessResult[AppUserViewModel](user, 200)

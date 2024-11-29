@@ -92,7 +92,7 @@ class UserServiceImpl(
   private def mapCreateUserRequestToDbInsert(
       user: AppUserCreateRequest
   )(implicit appRequestContext: AppRequestContext): AppUserInsert = {
-    val appLastChangedBy = cryptoService.decodeHashId(appRequestContext.id)
+    val appLastChangedBy = cryptoService.decodeHashId(appRequestContext.userId)
     val accountId = cryptoService.decodeHashId(user.accountId)
     val encryptedEmail =
       cryptoService.encryptToBase64(user.email)

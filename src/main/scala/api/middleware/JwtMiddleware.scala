@@ -63,12 +63,13 @@ object JwtMiddleware {
       val decodedJWT: DecodedJWT = verifier.verify(token)
       val appRequestContextId = decodedJWT.getClaim("sub").asString()
       val ipAddress = headers
-        .get(CaseInsensitiveString("x-forwared-for"))
+        .get(CaseInsensitiveString("x-forwarded-for"))
+        .map(_.head)
 
       Right(
         AppRequestContext(
-          id = appRequestContextId,
-          ipAddress = ipAddress.map(_.head.value),
+          userId = appRequestContextId,
+          ipAddress = ipAddress.map(_.value),
           requestId = UUID.randomUUID()
         )
       )

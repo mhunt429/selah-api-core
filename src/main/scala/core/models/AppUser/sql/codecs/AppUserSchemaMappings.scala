@@ -1,4 +1,4 @@
-package core.models.AppUser.sql
+package core.models.AppUser.sql.codecs
 
 import core.models.AppUser.sql.AppUser
 import doobie.postgres.implicits.*
