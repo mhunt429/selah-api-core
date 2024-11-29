@@ -1,7 +1,5 @@
 package core.transactions.sql
 
-import core.transactions.{RecurringTransactionFrequency, RecurringTransactionNotificationPreferences}
-
 import java.time.Instant
 
 case class RecurringTransactionSql(
@@ -9,6 +7,6 @@ case class RecurringTransactionSql(
     upcomingDate: Option[Instant],
     lastPaidDate: Option[Instant],
     location: String,
-    frequency: RecurringTransactionFrequency,
-    notificationPreference: Option[RecurringTransactionNotificationPreferences]
+    frequency: String,
+    notificationPreference: Option[String]
 )

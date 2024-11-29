@@ -1,9 +1,6 @@
 package core.json
 
-import cats.data.NonEmptyList
 import core.models.Http.{HttpErrors, HttpResponse}
-import core.transactions.RecurringTransactionFrequency
-import core.validation.{ValidationError, ValidationErrors}
 import io.circe.*
 import io.circe.generic.semiauto.*
 
@@ -37,28 +34,4 @@ object BaseJson {
       case e: Exception => Left(s"Failed to parse date: $str")
     }
   }
-
-  implicit val recurringTransactionFrequencyEncoder
-      : Encoder[RecurringTransactionFrequency] =
-    Encoder[String].contramap[RecurringTransactionFrequency] {
-      case RecurringTransactionFrequency.OneTime  => "OneTime"
-      case RecurringTransactionFrequency.Weekly   => "Weekly"
-      case RecurringTransactionFrequency.BiWeekly => "BiWeekly"
-      case RecurringTransactionFrequency.OneTime  => "OneTime"
-      case RecurringTransactionFrequency.Monthly  => "Monthly"
-      case RecurringTransactionFrequency.Other    => "Other"
-    }
-
-  implicit val recurringTransactionFrequencyDecoder
-      : Decoder[RecurringTransactionFrequency] =
-    Decoder[String].emap {
-      case "OneTime" =>
-        Right(
-          RecurringTransactionFrequency.OneTime
-        )
-      case "Weekly"   => Right(RecurringTransactionFrequency.Weekly)
-      case "BiWeekly" => Right(RecurringTransactionFrequency.BiWeekly)
-      case "Monthly"  => Right(RecurringTransactionFrequency.Monthly)
-      case "Other"    => Right(RecurringTransactionFrequency.Other)
-    }
 }

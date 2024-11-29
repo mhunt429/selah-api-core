@@ -12,7 +12,7 @@ object TestHelpers {
   val testConfig: Config = Config(
     server = ServerConfig(host = "localhost", port = 8080),
     db = DatabaseConfig(
-      url = "jdbc:postgresql://localhost:55432/postgres",
+      url = "jdbc:postgresql://localhost:65432/postgres",
       driver = "org.postgresql.Driver",
       user = "postgres",
       password = "postgres",
@@ -35,7 +35,9 @@ object TestHelpers {
       serverEc <- ExecutionContexts.cachedThreadPool[IO]
       txnEc <- ExecutionContexts.cachedThreadPool[IO]
       xa <- DatabaseConfig.transactor(testConfig.db, txnEc)
-      _ <- Resource.eval(DatabaseConfig.cleanSchema(xa)) // Ensure schema is cleaned
+      _ <- Resource.eval(
+        DatabaseConfig.cleanSchema(xa)
+      ) // Ensure schema is cleaned
     } yield xa
   }
 
