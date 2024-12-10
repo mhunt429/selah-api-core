@@ -12,7 +12,6 @@ trait HealthCheckRepository {
 class HealthCheckRepositoryImpl(val xa: Transactor[IO])
     extends HealthCheckRepository {
   def getPostgresProcessId: IO[Option[String]] = {
-    println(xa)
     getPostgresProcessIdSql.query[String].option.transact(xa)
   }
 

@@ -1,33 +1,42 @@
 package core.transactions.sql.codecs
 
 import core.transactions.sql.RecurringTransactionSql
-import doobie.{Meta, Read}
 import doobie.postgres.implicits.*
+import doobie.{Meta, Read}
+import utils.BaseSqlCodecs.*
+
 import java.time.Instant
-import utils.BaseSqlCodecs._
 object RecurringTransactionSchemaMapping {
 
-
-  
   implicit val recurringTransactionSqlRead: Read[RecurringTransactionSql] =
     Read[
-      (BigInt, Option[Instant], Option[Instant], String, String, Option[String])
+      (
+          BigInt,
+          BigInt,
+          Option[BigInt],
+          Option[Instant],
+          Option[Instant],
+          String,
+          String
+      )
     ].map {
       case (
             id,
+            userId,
+            recurringTransactionId,
             upcomingDate,
             lastPaidDate,
             location,
-            frequency,
-            notificationPreference
+            frequency
           ) =>
         RecurringTransactionSql(
           id,
+          userId,
+          recurringTransactionId,
           upcomingDate,
           lastPaidDate,
           location,
-          frequency,
-          notificationPreference
+          frequency
         )
     }
 }

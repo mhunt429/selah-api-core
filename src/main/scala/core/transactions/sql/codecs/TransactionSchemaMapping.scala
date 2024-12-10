@@ -1,9 +1,10 @@
 package core.transactions.sql.codecs
 
 import core.transactions.sql.TransactionSql
-import doobie.{Meta, Read}
 import doobie.postgres.implicits.*
+import doobie.{Meta, Read}
 import utils.BaseSqlCodecs.bigIntMeta
+
 import java.time.Instant
 
 object TransactionSchemaMapping {
@@ -12,16 +13,16 @@ object TransactionSchemaMapping {
       (BigInt, BigInt, Instant, String, BigDecimal, Option[String])
     ].map {
       case (
-        id,
-        categoryId,
-        transactionDate,
-        location,
-        transactionAmount,
-        transactionName
-        ) =>
+            id,
+            userId,
+            transactionDate,
+            location,
+            transactionAmount,
+            transactionName
+          ) =>
         TransactionSql(
           id,
-          categoryId,
+          userId,
           transactionDate,
           location,
           transactionAmount,

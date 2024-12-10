@@ -4,7 +4,7 @@ import java.time.Instant
 
 case class TransactionSql(
     id: BigInt,
-    categoryId: BigInt,
+    userId: BigInt,
     transactionDate: Instant,
     location: String,
     transactionAmount: BigDecimal,
