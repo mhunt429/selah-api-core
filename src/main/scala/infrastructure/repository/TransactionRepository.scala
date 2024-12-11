@@ -1,6 +1,5 @@
 package infrastructure.repository
 import cats.effect.IO
-import core.transactions.sql.codecs.*
 import core.transactions.sql.{TransactionCreateSql, TransactionLineItemInsertSql, TransactionUpdateSql}
 import doobie.*
 import doobie.implicits.*
@@ -33,7 +32,7 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
   implicit val instantMeta: Meta[Instant] =
     Meta[Timestamp].imap(_.toInstant)(Timestamp.from)
 
-  override def insertTransaction(
+  def insertTransaction(
       transactionCreateSql: TransactionCreateSql
   ): IO[Long] = {
     //Begin by creating a database transaction

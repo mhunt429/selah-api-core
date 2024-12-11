@@ -34,7 +34,7 @@ class RegistrationServiceImpl(
     AccountValidationService.validateAccount(request) match {
       case Valid(r) =>
         for {
-          dbTransaction <- accountRepository.createAccount(
+          dbTransaction <- accountRepository.createAccountWithUser(
             request.accountName.getOrElse(""),
             mapRegistrationRequestToUserDataAccess(request)
           )

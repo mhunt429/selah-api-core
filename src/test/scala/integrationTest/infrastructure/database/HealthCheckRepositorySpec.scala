@@ -1,7 +1,7 @@
 package integrationTest.infrastructure.database
 
+import cats.effect.IO
 import cats.effect.unsafe.IORuntime
-import cats.effect.{IO, Resource}
 import infrastructure.repository.HealthCheckRepositoryImpl
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
@@ -16,30 +16,19 @@ class HealthCheckRepositorySpec
 
   private implicit val runtime: IORuntime = cats.effect.unsafe.IORuntime.global
 
-  private var healthCheckRepositoryResource
-      : Resource[IO, HealthCheckRepositoryImpl] = _
+  private var healthCheckRepository: HealthCheckRepositoryImpl = _
 
   override def beforeEach(): Unit = {
-    healthCheckRepositoryResource = for {
+    val initResource = for {
       transactor <- TestHelpers.initializeTestDb()
     } yield new HealthCheckRepositoryImpl(transactor)
-  }
 
-  override def afterEach(): Unit = {
-    // Manually release resources after each test if needed
-    healthCheckRepositoryResource = null
+    // Run the Resource initialization and extract the value
+    healthCheckRepository = initResource.allocated.unsafeRunSync()._1
   }
 
   it should "return postgres process id" in {
-    healthCheckRepositoryResource
-      .use { healthCheckRepository =>
-        for {
-          processId <- healthCheckRepository.getPostgresProcessId
-          _ <- IO {
-            processId.head should not be empty
-          }
-        } yield ()
-      }
-      .unsafeRunSync()
+    val processId = healthCheckRepository.getPostgresProcessId.unsafeRunSync()
+    processId.head should not be empty
   }
 }

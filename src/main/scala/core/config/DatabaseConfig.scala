@@ -45,7 +45,8 @@ object DatabaseConfig {
     }
   }
 
-  //DROPS the entire schema during integration test cycles so that data can be isolated to a single test cycle
+ /*
+ Commenting this out because I'm figuring out issues with multiple tests
   def cleanSchema(transactor: HikariTransactor[IO]): IO[Unit] = {
     transactor.configure { dataSource =>
       IO {
@@ -57,8 +58,9 @@ object DatabaseConfig {
           .outOfOrder(true)
           .load()
         flyWay.clean()
+        flyWay.migrate()
         ()
       }
     }
-  }
+  }*/
 }

@@ -22,7 +22,7 @@ class RegistrationServiceSpec extends AnyFlatSpec with Matchers {
   private final val hashIds = Hashids(testConfig.securityConfig.hashIdSalt, 8)
 
   val accountRepositoryMock: AccountRepository = new AccountRepository {
-    override def createAccount(
+    override def createAccountWithUser(
         accountName: String,
         appUserInsert: AppUserInsert
     ): IO[(Long, Long)] = IO.pure(1, 1)

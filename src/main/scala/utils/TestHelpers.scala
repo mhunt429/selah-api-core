@@ -36,7 +36,7 @@ object TestHelpers {
       txnEc <- ExecutionContexts.cachedThreadPool[IO]
       xa <- DatabaseConfig.transactor(testConfig.db, txnEc)
       _ <- Resource.eval(
-        DatabaseConfig.cleanSchema(xa)
+        DatabaseConfig.initialize(xa)
       ) // Ensure schema is cleaned
     } yield xa
   }
