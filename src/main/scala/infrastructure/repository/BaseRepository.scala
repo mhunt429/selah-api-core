@@ -28,6 +28,15 @@ object BaseRepository {
     fragment.update.run
   }
 
+  def batchUpdate[A: Write](
+                             xa: Transactor[IO],
+                             sql: String, 
+                             values: Seq[A]
+                           ): ConnectionIO[Int] = {
+    val update = Update[A](sql)
+    update.updateMany(values)
+  }
+
   def delete(
               xa: Transactor[IO],
               fragment: Fragment

@@ -3,9 +3,9 @@ package core.transactions.sql
 import java.time.Instant
 
 case class RecurringTransactionSql(
-    id: BigInt,
-    userId: BigInt,
-    recurringTransactionId: Option[BigInt],
+    id: Long,
+    userId: Long,
+    recurringTransactionId: Option[Long],
     upcomingDate: Option[Instant],
     lastPaidDate: Option[Instant],
     location: String,

@@ -3,11 +3,12 @@ package core.transactions.sql
 import java.time.Instant
 
 case class TransactionCreateSql(
-    userId: BigInt,
-    accountId: BigInt,
+    userId: Long,
+    accountId: Long,
     transactionAmount: BigDecimal,
     transactionDate: Instant,
     location: String,
     pending: Boolean,
-    recurringTransactionId: Option[BigInt]
+    recurringTransactionId: Option[Long],
+    lineItems: Seq[TransactionLineItemInsertSql]
 )

@@ -3,8 +3,8 @@ package core.transactions.sql
 import java.time.Instant
 
 case class TransactionSql(
-    id: BigInt,
-    userId: BigInt,
+    id: Long,
+    userId: Long,
     transactionDate: Instant,
     location: String,
     transactionAmount: BigDecimal,

@@ -11,9 +11,9 @@ object RecurringTransactionSchemaMapping {
   implicit val recurringTransactionSqlRead: Read[RecurringTransactionSql] =
     Read[
       (
-          BigInt,
-          BigInt,
-          Option[BigInt],
+          Long,
+          Long,
+          Option[Long],
           Option[Instant],
           Option[Instant],
           String,

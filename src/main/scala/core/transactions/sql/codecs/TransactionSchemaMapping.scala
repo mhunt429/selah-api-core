@@ -10,7 +10,7 @@ import java.time.Instant
 object TransactionSchemaMapping {
   implicit val transactionSqlRead: Read[TransactionSql] =
     Read[
-      (BigInt, BigInt, Instant, String, BigDecimal, Option[String])
+      (Long, Long, Instant, String, BigDecimal, Option[String])
     ].map {
       case (
             id,
