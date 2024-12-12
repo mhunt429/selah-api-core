@@ -9,7 +9,7 @@ case class TransactionLineItemSql(
 )
 
 case class TransactionLineItemInsertSql(
-    appContextUserId: Long,
+    appLastChangedBy: Long,
     originalInsert: Instant = Instant.now(),
     lastUpdate: Instant = Instant.now(),
     transactionId: Long,

@@ -1,6 +1,6 @@
 package infrastructure.repository
 import cats.effect.IO
-import core.transactions.sql.{TransactionCreateSql, TransactionLineItemInsertSql, TransactionUpdateSql}
+import core.transactions.sql.{TransactionCategoryCreateSql, TransactionCreateSql, TransactionLineItemInsertSql, TransactionUpdateSql}
 import doobie.*
 import doobie.implicits.*
 import doobie.implicits.javasql.TimestampMeta
@@ -25,6 +25,10 @@ trait TransactionRepository {
   ): ConnectionIO[Long]
 
   def deleteTransaction(id: Long): ConnectionIO[Long]
+
+  def createTransactionCategory(
+      categoryCreateSql: TransactionCategoryCreateSql
+  ): IO[Long]
 }
 
 class TransactionRepositoryImpl(xa: Transactor[IO])
@@ -69,6 +73,19 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
   ): doobie.ConnectionIO[Long] = ???
 
   override def deleteTransaction(id: Long): doobie.ConnectionIO[Long] = ???
+
+  def createTransactionCategory(
+      categoryCreateSql: TransactionCategoryCreateSql
+  ): IO[Long] = {
+    val dbTrx = for {
+      categoryId <- BaseRepository.insertWithId(
+        xa,
+        createTransactionCategorySql(categoryCreateSql)
+      )
+    } yield (categoryId)
+
+    dbTrx.transact(xa)
+  }
 
   private def insertTransactionSql(
       transactionCreateSql: TransactionCreateSql
@@ -139,4 +156,25 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
             WHERE id = ${transactionId}
              """
   }
+
+  private def createTransactionCategorySql(
+      categoryCreateSql: TransactionCategoryCreateSql
+  ) = {
+    sql"""
+         INSERT INTO transaction_category(
+         app_last_changed_by,
+        original_insert,
+         last_update,
+         user_id,
+         category_name)
+         VALUES(
+         ${categoryCreateSql.appLastChangedBy},
+         ${Instant.now()},
+         ${Instant.now()},
+         ${categoryCreateSql.userId},
+         ${categoryCreateSql.name}
+         )
+       """
+  }
+
 }

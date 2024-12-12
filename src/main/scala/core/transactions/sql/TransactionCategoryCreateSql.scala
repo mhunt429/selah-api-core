@@ -1,6 +1,7 @@
 package core.transactions.sql
 
 case class TransactionCategoryCreateSql(
-    userId: BigInt,
+    appLastChangedBy: Long,
+    userId: Long,
     name: String
 )

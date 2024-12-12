@@ -4,7 +4,7 @@ import cats.effect.IO
 import cats.effect.unsafe.IORuntime
 import core.models.Account.AccountInsert
 import core.models.AppUser.sql.AppUserInsert
-import core.transactions.sql.{TransactionCreateSql, TransactionLineItemInsertSql}
+import core.transactions.sql.{TransactionCategoryCreateSql, TransactionCreateSql, TransactionLineItemInsertSql}
 import doobie.util.transactor.Transactor
 import infrastructure.repository.{AccountRepositoryImpl, AppUserRepositoryImpl, TransactionRepositoryImpl}
 import org.scalatest.flatspec.AnyFlatSpec
@@ -27,6 +27,10 @@ class TransactionRepositorySpec
   private var accountRepository: AccountRepositoryImpl = _
   private var userRepository: AppUserRepositoryImpl = _
   private var transactor: Transactor[IO] = _
+
+  private var transactionCategory1 = -1L
+  private var transactionCategory2 = -1L
+
   override def beforeEach(): Unit = {
 
     val initResource = for {
@@ -57,13 +61,13 @@ class TransactionRepositorySpec
       None,
       Seq(
         TransactionLineItemInsertSql(
-          appContextUserId = 1,
+          appLastChangedBy = 1,
           transactionId = 1,
           transactionCategoryId = 1,
           itemizedAmount = 100
         ),
         TransactionLineItemInsertSql(
-          appContextUserId = 1,
+          appLastChangedBy = 1,
           transactionId = 1,
           transactionCategoryId = 2,
           itemizedAmount = 100
@@ -99,6 +103,22 @@ class TransactionRepositorySpec
 
     val userId = userRepository.createUserWithCommit(user).unsafeRunSync()
 
+    val category1 = TransactionCategoryCreateSql(
+      1,
+      userId,
+      "Category 1"
+    )
+
+    val category2 = TransactionCategoryCreateSql(
+      1,
+      userId,
+      "Category 2"
+    )
+
+    transactionCategory1 =
+      transactionRepository.createTransactionCategory(category1).unsafeRunSync()
+    transactionCategory2 =
+      transactionRepository.createTransactionCategory(category2).unsafeRunSync()
   }
 
   private def tearDownTasks(): Unit = {}
