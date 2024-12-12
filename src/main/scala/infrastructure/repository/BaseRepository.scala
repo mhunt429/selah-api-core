@@ -6,7 +6,6 @@ import doobie.implicits.*
 import doobie.util.fragment.Fragment
 import doobie.util.transactor.Transactor
 
-
 object BaseRepository {
 
 //Any transactions should not auto-commit
@@ -21,29 +20,40 @@ object BaseRepository {
       .lastOrError
   }
 
+  def insertWithIdAutoCommit(
+      xa: Transactor[IO],
+      fragment: Fragment
+  ): IO[Long] = {
+    fragment.update
+      .withGeneratedKeys[Long]("id")
+      .compile
+      .lastOrError
+      .transact(xa)
+  }
+
   def update(
-              xa: Transactor[IO],
-              fragment: Fragment
-            ): ConnectionIO[Int] = {
+      xa: Transactor[IO],
+      fragment: Fragment
+  ): ConnectionIO[Int] = {
     fragment.update.run
   }
 
   def batchUpdate[A: Write](
-                             xa: Transactor[IO],
-                             sql: String, 
-                             values: Seq[A]
-                           ): ConnectionIO[Int] = {
+      xa: Transactor[IO],
+      sql: String,
+      values: Seq[A]
+  ): ConnectionIO[Int] = {
     val update = Update[A](sql)
     update.updateMany(values)
   }
 
   def delete(
-              xa: Transactor[IO],
-              fragment: Fragment
-            ): ConnectionIO[Int] = {
+      xa: Transactor[IO],
+      fragment: Fragment
+  ): ConnectionIO[Int] = {
     fragment.update.run
   }
-  
+
   // Reads can return an IO instead of ConnectionIO
 
   def getAll[A](xa: Transactor[IO], fragment: Fragment)(implicit
@@ -65,7 +75,5 @@ object BaseRepository {
       .option
       .transact(xa)
   }
-
-
 
 }

@@ -1,21 +1,23 @@
 package core.transactions.sql
 
-import doobie.*
-import doobie.util.Write
+import java.time.Instant
 case class TransactionLineItemSql(
     id: Long,
     transactionId: Long,
-    categoryId: String,
+    transactionCategoryId: String,
     itemizedAmount: BigDecimal
 )
 
 case class TransactionLineItemInsertSql(
+    appContextUserId: Long,
+    originalInsert: Instant = Instant.now(),
+    lastUpdate: Instant = Instant.now(),
     transactionId: Long,
-    categoryId: Long,
+    transactionCategoryId: Long,
     itemizedAmount: BigDecimal
 )
 
 case class TransactionLineItemUpdateSql(
-    categoryId: Long,
+    transactionCategoryId: Long,
     itemizedAmount: BigDecimal
 )

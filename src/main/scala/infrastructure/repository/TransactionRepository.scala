@@ -10,7 +10,8 @@ import java.time.Instant
 
 trait TransactionRepository {
   def insertTransaction(
-      transactionCreateSql: TransactionCreateSql
+      transactionCreateSql: TransactionCreateSql,
+      appContextUserId: Long
   ): IO[Long]
 
   def insertTransactionLineItem(
@@ -33,25 +34,31 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
     Meta[Timestamp].imap(_.toInstant)(Timestamp.from)
 
   def insertTransaction(
-      transactionCreateSql: TransactionCreateSql
+      transactionCreateSql: TransactionCreateSql,
+      appContextUserId: Long
   ): IO[Long] = {
-    //Begin by creating a database transaction
     val dbTrx: ConnectionIO[Long] = for {
       transactionId <- BaseRepository.insertWithId(
         xa,
         insertTransactionSql(transactionCreateSql)
       )
+      _ <- BaseRepository.update(
+        xa,
+        updateTransactionLastChangeBySql(appContextUserId, transactionId)
+      )
       _ <- BaseRepository.batchUpdate[TransactionLineItemInsertSql](
         xa,
         insertTransactionLineItemsSql(),
-        transactionCreateSql.lineItems
+        transactionCreateSql.lineItems.map(
+          _.copy(transactionId = transactionId)
+        )
       )
     } yield (transactionId)
 
     dbTrx.transact(xa)
   }
 
-  override def insertTransactionLineItem(
+  def insertTransactionLineItem(
       transactionId: BigDecimal,
       categoryId: String,
       itemizedAmount: BigDecimal
@@ -72,11 +79,9 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
         original_insert,
          last_update,
          user_id,
-         account_id,
          transaction_amount,
          transaction_date,
          location,
-         pending,
          recurring_transaction_id
          )
          values (
@@ -84,10 +89,9 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
          ${Instant.now()},
          ${Instant.now()},
          ${transactionCreateSql.userId},
-         ${transactionCreateSql.accountId},
+         ${transactionCreateSql.transactionAmount},
          ${transactionCreateSql.transactionDate},
          ${transactionCreateSql.location},
-         ${transactionCreateSql.pending},
          ${transactionCreateSql.recurringTransactionId}
          )
        """
@@ -100,7 +104,7 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
        |  original_insert,
        |  last_update,
        |  transaction_id,
-       |  category_id,
+       |  transaction_category_id,
        |  itemized_amount
        |) VALUES (
        |  ?,
@@ -112,21 +116,27 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
        |)
        |""".stripMargin
 
-  private def updateTransactionLastChangeBySql(id: Long) = {
+  private def updateTransactionLastChangeBySql(
+      appContextUserId: Long,
+      transactionId: Long
+  ) = {
     sql"""
             UPDATE transaction
-            SET app_last_changed_by = ${id},
+            SET app_last_changed_by = ${appContextUserId},
             last_update = ${Instant.now()}
-            WHERE id = ${id}
+            WHERE id = ${transactionId}
              """
   }
 
-  private def updateTransactionLineItemsLastChangeBySql(id: Long) = {
+  private def updateTransactionLineItemsLastChangeBySql(
+      appContextUserId: Long,
+      transactionId: Long
+  ) = {
     sql"""
             UPDATE transaction_line_item
-            SET app_last_changed_by = ${id},
+            SET app_last_changed_by = ${appContextUserId},
             last_update = ${Instant.now()}
-            WHERE id = ${id}
+            WHERE id = ${transactionId}
              """
   }
 }

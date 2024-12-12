@@ -13,6 +13,7 @@ import org.scalatest.{BeforeAndAfterEach, EitherValues}
 import utils.TestHelpers
 
 import java.time.Instant
+import java.util.UUID
 
 class TransactionRepositorySpec
     extends AnyFlatSpec
@@ -30,9 +31,15 @@ class TransactionRepositorySpec
 
     val initResource = for {
       transactor <- TestHelpers.initializeTestDb()
-    } yield new TransactionRepositoryImpl(transactor)
+    } yield (
+      new AppUserRepositoryImpl(transactor),
+      new AccountRepositoryImpl(transactor, userRepository),
+      new TransactionRepositoryImpl(transactor)
+    )
 
-    transactionRepository = initResource.allocated.unsafeRunSync()._1
+    userRepository = initResource.allocated.map(_._1._1).unsafeRunSync()
+    accountRepository = initResource.allocated.map(_._1._2).unsafeRunSync()
+    transactionRepository = initResource.allocated.map(_._1._3).unsafeRunSync()
     startUpTasks()
   }
 
@@ -42,16 +49,30 @@ class TransactionRepositorySpec
     val transactionCreateSql = TransactionCreateSql(
       1,
       1,
+      1,
       100,
       Instant.now(),
       "White Castle",
       false,
       None,
-      Seq(TransactionLineItemInsertSql(1, 1, 100))
+      Seq(
+        TransactionLineItemInsertSql(
+          appContextUserId = 1,
+          transactionId = 1,
+          transactionCategoryId = 1,
+          itemizedAmount = 100
+        ),
+        TransactionLineItemInsertSql(
+          appContextUserId = 1,
+          transactionId = 1,
+          transactionCategoryId = 2,
+          itemizedAmount = 100
+        )
+      )
     )
 
     val trxId = transactionRepository
-      .insertTransaction(transactionCreateSql)
+      .insertTransaction(transactionCreateSql, 1)
       .unsafeRunSync()
 
     trxId should be > 0L
@@ -67,7 +88,7 @@ class TransactionRepositorySpec
       appLastChangedBy = 1,
       accountId,
       encryptedEmail = "secret-email",
-      username = "user",
+      username = UUID.randomUUID().toString.substring(0, 19),
       password = "@ssword",
       encryptedName = "secret-name",
       encryptedPhone = "secret-phone",

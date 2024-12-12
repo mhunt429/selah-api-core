@@ -3,6 +3,7 @@ package core.transactions.sql
 import java.time.Instant
 
 case class TransactionCreateSql(
+    appContextUserId: Long,
     userId: Long,
     accountId: Long,
     transactionAmount: BigDecimal,
