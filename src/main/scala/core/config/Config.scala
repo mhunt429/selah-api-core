@@ -3,7 +3,8 @@ package core.config
 final case class Config(
     server: ServerConfig,
     db: DatabaseConfig,
-    securityConfig: SecurityConfig
+    securityConfig: SecurityConfig,
+    plaidConfig: PlaidConfig
 )
 
 final case class SecurityConfig(
@@ -12,4 +13,10 @@ final case class SecurityConfig(
     cryptoSecret: String,
     accessTokenExpiryMinutes: Int,
     refreshTokenExpiryDays: Int
+)
+
+final case class PlaidConfig(
+    plaidClientId: String,
+    plaidClientSecret: String,
+    plaidEnvironment: String
 )

@@ -44,7 +44,10 @@ lazy val root = project
       "io.prometheus" % "simpleclient_common" % prometheusVersion,
       "com.github.loki4j" % "loki-logback-appender" % "1.5.1",
       "com.auth0" % "java-jwt" % "4.4.0",
-      "org.mindrot" % "jbcrypt" % bcryptVersion
+      "org.mindrot" % "jbcrypt" % bcryptVersion,
+      "com.softwaremill.sttp.client3" %% "core" % sttpVersion,
+      "com.softwaremill.sttp.client3" %% "circe" % sttpVersion,
+      "com.softwaremill.sttp.client3" %% "async-http-client-backend-future" % sttpVersion
     )
   )
 
@@ -61,3 +64,4 @@ val doobieVersion = "1.0.0-RC4"
 val flywayVersion = "9.16.0"
 val prometheusVersion = "0.16.0"
 val bcryptVersion = "0.4"
+val sttpVersion = "3.10.1"

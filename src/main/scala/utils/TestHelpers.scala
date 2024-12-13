@@ -2,7 +2,7 @@ package utils
 
 import cats.effect.unsafe.IORuntime
 import cats.effect.{IO, Resource}
-import core.config.{Config, DatabaseConfig, SecurityConfig, ServerConfig}
+import core.config.*
 import doobie.ExecutionContexts
 import doobie.util.transactor.Transactor
 
@@ -27,6 +27,11 @@ object TestHelpers {
         "3ca5a1185b613cee4ba947839490427c36f1994809cb9a603c2a3717dd39d475",
       accessTokenExpiryMinutes = 60,
       refreshTokenExpiryDays = 30
+    ),
+    plaidConfig = PlaidConfig(
+      plaidClientId = "clientId",
+      plaidClientSecret = "secret",
+      plaidEnvironment = "sandbox"
     )
   )
 
