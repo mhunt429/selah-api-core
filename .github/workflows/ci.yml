@@ -12,7 +12,7 @@ jobs:
     name: Build, Test, and Coverage
     strategy:
       matrix:
-        java-version: [ 8, 11, 17 ]
+        java-version: [8, 11, 17]
     runs-on: ubuntu-latest
 
     services:
@@ -53,3 +53,23 @@ jobs:
 
       - name: Build and Test
         run: sbt compile clean coverage test coverageReport
+
+      - name: Extract Coverage Summary
+        run: |
+          # Extract the relevant coverage information from the HTML report
+          grep -A 10 "<h1>Code Coverage Summary</h1>" target/scala-3.3.0/scoverage-report/index.html > coverage-summary.md
+
+      - name: Update README
+        run: |
+          # Insert the coverage summary into README.md
+          sed -i '/## Coverage Report/,$d' README.md # Remove existing coverage section
+          echo "## Coverage Report" >> README.md
+          cat coverage-summary.md >> README.md
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README with latest coverage report" || echo "No changes to commit"
+          git push
