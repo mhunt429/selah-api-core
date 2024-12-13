@@ -1,7 +1,7 @@
 package application.services.financialConnector
 
 import cats.effect.IO
-import core.Plaid.{PlaidLinkToken, PlaidLinkTokenRequest, PlaidTokenUser}
+import core.Plaid.{PlaidLinkToken, PlaidLinkTokenRequest, PlaidLinkTokenResponse, PlaidTokenUser}
 import core.config.PlaidConfig
 import core.json.PlaidJson.*
 import infrastructure.services.HttpClientService
@@ -9,7 +9,7 @@ import infrastructure.services.HttpClientService
 import scala.concurrent.ExecutionContext
 
 class PlaidHttpService(config: PlaidConfig)(implicit ec: ExecutionContext) {
-  def createLinkToken(userId: String): IO[Option[PlaidLinkToken]] = {
+  def createLinkToken(userId: String): IO[Option[PlaidLinkTokenResponse]] = {
     val linkTokenRequest = PlaidLinkTokenRequest(
       client_id = config.plaidClientId,
       secret = config.plaidClientSecret,
@@ -26,8 +26,8 @@ class PlaidHttpService(config: PlaidConfig)(implicit ec: ExecutionContext) {
         )
       )
     ).map {
-      case Right(token) => Some(token)
-      case Left(e)      =>
+      case Right(t) => Some(PlaidLinkTokenResponse(t.link_token))
+      case Left(e)  =>
         // Log the error here
         println(s"Error creating link token: ${e}")
         None

@@ -26,3 +26,7 @@ case class PlaidLinkTokenRequest(
 case class PlaidTokenUser(
     client_user_id: String
 )
+
+case class PlaidLinkTokenResponse(
+                                   link_token: String,
+                                 )
