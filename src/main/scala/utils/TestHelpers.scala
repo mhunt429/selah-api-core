@@ -31,7 +31,7 @@ object TestHelpers {
     plaidConfig = PlaidConfig(
       plaidClientId = "clientId",
       plaidClientSecret = "secret",
-      plaidEnvironment = "sandbox"
+      plaidBaseUrl = "sandbox"
     )
   )
 

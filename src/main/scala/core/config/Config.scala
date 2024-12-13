@@ -18,5 +18,5 @@ final case class SecurityConfig(
 final case class PlaidConfig(
     plaidClientId: String,
     plaidClientSecret: String,
-    plaidEnvironment: String
+    plaidBaseUrl: String
 )

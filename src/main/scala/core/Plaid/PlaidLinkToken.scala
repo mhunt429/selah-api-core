@@ -15,7 +15,7 @@ case class PlaidLinkToken(
 
 case class PlaidLinkTokenRequest(
     client_id: String,
-    client_secret: String,
+    secret: String,
     country_codes: Seq[String] = Seq("US"),
     language: String = "en",
     products: Seq[String] = Seq("auth", "transactions"),
