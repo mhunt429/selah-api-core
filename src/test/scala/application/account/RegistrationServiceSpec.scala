@@ -43,6 +43,8 @@ class RegistrationServiceSpec extends AnyFlatSpec with Matchers {
 
     override def getUser(id: Long): IO[Option[AppUser]] = IO.pure(None)
 
+    override def getUserByUsername(username: String): IO[Option[AppUser]] = IO.pure(None)
+
     override def updateAccountLastChangeBy(
         id: Long
     ): doobie.ConnectionIO[Int] = connection.pure(1)

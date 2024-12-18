@@ -3,12 +3,12 @@ package application.services.security
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import core.config.Config
-import core.identity.TokenType
+import core.identity.{AccessTokenResponse, TokenType}
 import utils.DateUtilities
 
-import java.time.Duration
+import java.time.{Duration, Instant}
 import java.time.Instant.now
-import java.util.Date
+import java.util.{Date, UUID}
 
 case class GenerateTokenResponse(token: String, expiration: Date)
 
@@ -35,6 +35,26 @@ class TokenService(config: Config) {
     GenerateTokenResponse(
       token = createAuthScopeToken(userId, tokenType, expiration),
       expiration = expiration
+    )
+  }
+  
+  def generateAccessTokenResponse(userId: String):AccessTokenResponse = {
+    val now = Instant.now()
+    val accessToken = generateToken(
+      userId,
+      tokenType = TokenType.Access
+    )
+    val refreshToken = generateToken(
+      userId,
+      tokenType = TokenType.Refresh
+    )
+
+    AccessTokenResponse(
+      sessionId = UUID.randomUUID(),
+      accessToken = accessToken.token,
+      refreshToken = refreshToken.token,
+      accessTokenExpiration = accessToken.expiration,
+      refreshTokenExpiration = refreshToken.expiration
     )
   }
   

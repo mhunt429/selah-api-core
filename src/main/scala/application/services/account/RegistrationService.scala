@@ -41,7 +41,7 @@ class RegistrationServiceImpl(
           _ = logger.info(
             s"Successfully created account with id ${dbTransaction._1}"
           ) //accountId
-          tokenResponse = generateTokenFromRegistration(
+          tokenResponse = tokenService.generateAccessTokenResponse(
             cryptoService.encodeHashId(dbTransaction._2)
           ) // userId
         } yield Right(
@@ -57,28 +57,6 @@ class RegistrationServiceImpl(
       case Invalid(errors) =>
         IO.pure(Left(errors.toList.map(_.message)))
     }
-  }
-
-  private def generateTokenFromRegistration(
-      userId: String
-  ): AccessTokenResponse = {
-    val now = Instant.now()
-    val accessToken = tokenService.generateToken(
-      userId,
-      tokenType = TokenType.Access
-    )
-    val refreshToken = tokenService.generateToken(
-      userId,
-      tokenType = TokenType.Refresh
-    )
-
-    AccessTokenResponse(
-      sessionId = UUID.randomUUID(),
-      accessToken = accessToken.token,
-      refreshToken = refreshToken.token,
-      accessTokenExpiration = accessToken.expiration,
-      refreshTokenExpiration = refreshToken.expiration
-    )
   }
 
   private def mapRegistrationRequestToUserDataAccess(

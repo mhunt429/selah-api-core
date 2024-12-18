@@ -2,7 +2,8 @@ package api.modules
 
 import application.services.HealthCheckServiceImpl
 import application.services.account.{RegistrationServiceImpl, UserServiceImpl}
-import application.services.financialConnector.PlaidHttpService
+import application.services.connector.PlaidHttpService
+import application.services.identity.IdentityService
 import application.services.security.{CryptoService, TokenService}
 import core.config.Config
 import org.hashids.Hashids
@@ -36,4 +37,6 @@ class Services private (repository: Repository, config: Config) {
     cryptoService,
     tokenService
   )
+  
+  val identityService = IdentityService(cryptoService,tokenService,  repository.appUserRepository)
 }

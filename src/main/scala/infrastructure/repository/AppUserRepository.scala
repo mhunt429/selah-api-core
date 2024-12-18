@@ -20,6 +20,8 @@ trait AppUserRepository {
   def updateAccountLastChangeBy(id: Long): ConnectionIO[Int]
 
   def getUserByEmail(encryptedEmail: String): IO[Option[String]]
+
+  def getUserByUsername(username: String): IO[Option[AppUser]]
 }
 
 class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
@@ -40,6 +42,11 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
   def getUser(id: Long): IO[Option[AppUser]] = {
     BaseRepository
       .get[AppUser](xa, getUserQuery(id))
+  }
+
+  def getUserByUsername(username: String): IO[Option[AppUser]] = {
+    BaseRepository
+      .get[AppUser](xa, getUserByUsernameSql(username))
   }
 
   def getUserByEmail(email: String): IO[Option[String]] = {
@@ -103,5 +110,12 @@ class AppUserRepositoryImpl(xa: Transactor[IO]) extends AppUserRepository {
         last_update = ${Instant.now()}
         WHERE id = ${id}
          """
+  }
+
+  private def getUserByUsernameSql(username: String) = {
+    sql"""
+         SELECT * FROM app_user where username = $username
+         LIMIT 1
+       """
   }
 }

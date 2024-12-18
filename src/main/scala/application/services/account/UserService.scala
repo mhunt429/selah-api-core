@@ -12,6 +12,7 @@ import core.validation.ValidationError
 import infrastructure.repository.AppUserRepository
 import org.slf4j.LoggerFactory
 import utils.StringUtilities
+import utils.mappings.AppUserMappings
 
 import java.time.Instant
 
@@ -79,6 +80,26 @@ class UserServiceImpl(
             dateCreated = u.createdDate
           )
         )
+      case _ => None
+    }
+  }
+
+  def getUserForLogin(
+      username: String,
+      password: String
+  ): IO[Option[AppUserViewModel]] = {
+    appUserRepository.getUserByUsername(username).map {
+      case Some(user) =>
+        if (cryptoService.checkPassword(password, user.password)) {
+          val fullName = cryptoService
+            .decrypt(StringUtilities.convertBase64ToBytes(user.encryptedName))
+          val splitName = fullName.split(":")
+          Some(
+            AppUserMappings.getUserViewModelFromDb(user, cryptoService)
+          )
+        } else {
+          None
+        }
       case _ => None
     }
   }

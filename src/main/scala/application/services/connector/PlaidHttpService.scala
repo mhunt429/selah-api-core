@@ -1,4 +1,4 @@
-package application.services.financialConnector
+package application.services.connector
 
 import cats.effect.IO
 import core.Plaid.{PlaidLinkToken, PlaidLinkTokenRequest, PlaidLinkTokenResponse, PlaidTokenUser}
