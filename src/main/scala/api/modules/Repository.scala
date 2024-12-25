@@ -5,7 +5,7 @@ import cats.effect.*
 import cats.implicits.*
 import doobie.implicits.*
 import doobie.util.transactor.Transactor
-import infrastructure.repository.{AccountRepositoryImpl, AppUserRepositoryImpl, HealthCheckRepositoryImpl}
+import infrastructure.repository.{AccountConnectorRepositoryImpl, AccountRepositoryImpl, AppUserRepositoryImpl, HealthCheckRepositoryImpl}
 
 import scala.concurrent.ExecutionContext
 
@@ -23,4 +23,6 @@ class Repository(xa: Transactor[IO]) {
   val appUserRepository: AppUserRepositoryImpl = new AppUserRepositoryImpl(xa)
   
   val accountRepository: AccountRepositoryImpl = new AccountRepositoryImpl(xa, appUserRepository)
+  
+  val accountConnectorRepository: AccountConnectorRepositoryImpl = new AccountConnectorRepositoryImpl(xa)
 }

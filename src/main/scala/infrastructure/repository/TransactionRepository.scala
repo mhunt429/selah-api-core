@@ -44,11 +44,7 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
     val dbTrx: ConnectionIO[Long] = for {
       transactionId <- BaseRepository.insertWithId(
         xa,
-        insertTransactionSql(transactionCreateSql)
-      )
-      _ <- BaseRepository.update(
-        xa,
-        updateTransactionLastChangeBySql(appContextUserId, transactionId)
+        insertTransactionSql(transactionCreateSql, appContextUserId)
       )
       _ <- BaseRepository.batchUpdate[TransactionLineItemInsertSql](
         xa,
@@ -88,21 +84,22 @@ class TransactionRepositoryImpl(xa: Transactor[IO])
   }
 
   private def insertTransactionSql(
-      transactionCreateSql: TransactionCreateSql
+      transactionCreateSql: TransactionCreateSql,
+      userId: Long
   ) = {
     sql"""
          INSERT INTO transaction(
-         app_last_changed_by,
-        original_insert,
-         last_update,
-         user_id,
-         transaction_amount,
-         transaction_date,
-         location,
-         recurring_transaction_id
+          app_last_changed_by,
+          original_insert,
+          last_update,
+          user_id,
+          transaction_amount,
+          transaction_date,
+          location,
+          recurring_transaction_id
          )
          values (
-         -1,
+         ${userId},
          ${Instant.now()},
          ${Instant.now()},
          ${transactionCreateSql.userId},

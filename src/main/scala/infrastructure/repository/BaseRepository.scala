@@ -7,9 +7,7 @@ import doobie.util.fragment.Fragment
 import doobie.util.transactor.Transactor
 
 object BaseRepository {
-
-//Any transactions should not auto-commit
-//This is so we can chain writes, updates, and deletes together as needed
+  
   def insertWithId(
       xa: Transactor[IO],
       fragment: Fragment

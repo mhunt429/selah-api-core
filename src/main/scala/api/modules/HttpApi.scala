@@ -36,9 +36,6 @@ sealed abstract class HttpApi[F[_]: Async] private (
 
   private val registry: CollectorRegistry = CollectorRegistry.defaultRegistry
   private val metricsRoutes = MetricsRoutes(registry).routes
-  private val connectorRoutes = ConnectorRoutes(
-    services.plaidHttpService
-  ).routes
 
   private val publicIdentityRoutes = PublicIdentityRoutes(
     services.identityService
@@ -49,7 +46,7 @@ sealed abstract class HttpApi[F[_]: Async] private (
   )
 
   private val publicRoutes: HttpRoutes[IO] =
-    healthRoutes <+> metricsRoutes <+> connectorRoutes <+> publicIdentityRoutes
+    healthRoutes <+> metricsRoutes <+> publicIdentityRoutes
 
   private val userRoutes: HttpRoutes[IO] =
     UserRoutes(services.userService).routes(authMiddleware)
@@ -57,8 +54,12 @@ sealed abstract class HttpApi[F[_]: Async] private (
   private val identityRoutes: HttpRoutes[IO] =
     IdentityRoutes(services.userService).routes(authMiddleware)
 
+  private val connectorRoutes: HttpRoutes[IO] = ConnectorRoutes(
+    services.connectorService
+  ).routes(authMiddleware)
+
   private val routes: HttpRoutes[IO] = Router(
-    "api/" -> (publicRoutes <+> userRoutes <+> registrationRoutes <+> identityRoutes),
+    "api/" -> (publicRoutes <+> userRoutes <+> registrationRoutes <+> identityRoutes <+> connectorRoutes),
     "" -> (healthRoutes <+> metricsRoutes)
   )
 

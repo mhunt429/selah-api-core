@@ -28,5 +28,25 @@ case class PlaidTokenUser(
 )
 
 case class PlaidLinkTokenResponse(
-                                   link_token: String,
-                                 )
+    link_token: String
+)
+
+case class PlaidTokenExchangeRequest(
+    client_id: String,
+    secret: String,
+    public_token: String
+)
+
+case class PlaidTokenExchangeResponse(
+    access_token: String,
+    item_id: String,
+    request_id: String
+)
+
+//This is sent over on the success event handler from the frontend
+case class TokenExchangeHttpRequest(
+    publicToken: String,
+    userId: String,
+    institutionName: String,
+    institutionId: String
+)

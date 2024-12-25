@@ -2,7 +2,7 @@ package api.modules
 
 import application.services.HealthCheckServiceImpl
 import application.services.account.{RegistrationServiceImpl, UserServiceImpl}
-import application.services.connector.PlaidHttpService
+import application.services.connector.{ConnectorService, PlaidHttpService}
 import application.services.identity.IdentityService
 import application.services.security.{CryptoService, TokenService}
 import core.config.Config
@@ -39,4 +39,6 @@ class Services private (repository: Repository, config: Config) {
   )
   
   val identityService = IdentityService(cryptoService,tokenService,  repository.appUserRepository)
+  
+  val connectorService = ConnectorService(plaidHttpService, cryptoService, repository.accountConnectorRepository)
 }

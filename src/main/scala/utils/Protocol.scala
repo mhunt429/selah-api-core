@@ -1,6 +1,6 @@
 package utils
 
-import core.Plaid.{PlaidLinkToken, PlaidLinkTokenRequest, PlaidLinkTokenResponse, PlaidTokenUser}
+import core.Plaid.*
 import core.config.*
 import core.identity.{AccessTokenResponse, LoginRequest, LoginResponse}
 import core.json.BaseJson.*
@@ -103,5 +103,24 @@ trait Protocol {
 
   implicit val plaidTokenLinkViewModelEncoder: Encoder[PlaidLinkTokenResponse] =
     deriveEncoder[PlaidLinkTokenResponse]
+
+  implicit val plaidTokenExchangeRequestEncoder
+      : Encoder[PlaidTokenExchangeRequest] =
+    deriveEncoder[PlaidTokenExchangeRequest]
+
+  implicit val plaidTokenExchangeDecoder: Decoder[PlaidTokenExchangeRequest] =
+    deriveDecoder[PlaidTokenExchangeRequest]
+
+  implicit val plaidTokenExchangeResponseEncoder
+      : Encoder[PlaidTokenExchangeResponse] =
+    deriveEncoder[PlaidTokenExchangeResponse]
+
+  implicit val plaidTokenExchangeResponseDecoder
+      : Decoder[PlaidTokenExchangeResponse] =
+    deriveDecoder[PlaidTokenExchangeResponse]
+
+  implicit val plaidTokenExchangeClientDecoder
+      : Decoder[TokenExchangeHttpRequest] =
+    deriveDecoder[TokenExchangeHttpRequest]
 
 }
