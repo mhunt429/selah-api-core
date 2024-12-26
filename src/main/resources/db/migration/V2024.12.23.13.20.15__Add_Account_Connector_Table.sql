@@ -4,12 +4,12 @@ CREATE TABLE account_connector
     user_id          BIGINT references app_user (id) ON DELETE SET NULL,
     institution_id TEXT,
     institution_name TEXT,
-    date_connected   TIMESTAMPZ,
+    date_connected   TIMESTAMPTZ,
     encrypted_access_token TEXT,
     transaction_sync_cursor TEXT
-)INHERITS(base_audit_table)
+)INHERITS(base_audit_table);
 
-CREATE INDEX account_connector_userId ON account_connector(user_id)
+CREATE INDEX account_connector_userId ON account_connector(user_id);
 
 /*
 ROLLBACK;

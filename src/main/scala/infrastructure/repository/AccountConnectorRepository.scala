@@ -10,7 +10,9 @@ import java.sql.Timestamp
 import java.time.Instant
 
 trait AccountConnectorRepository {
-  def insertAccountConnector(accountConnectorSql: AccountConnectorSqlInsert): IO[Long]
+  def insertAccountConnector(
+      accountConnectorSql: AccountConnectorSqlInsert
+  ): IO[Long]
 }
 
 class AccountConnectorRepositoryImpl(xa: Transactor[IO])
@@ -49,7 +51,7 @@ class AccountConnectorRepositoryImpl(xa: Transactor[IO])
             ${accountConnector.userId},
             ${accountConnector.institutionId},
             ${accountConnector.institutionName},
-            ${Instant.now()}
+            ${Instant.now()},
             ${accountConnector.encryptedAccessToken}
          )
        """

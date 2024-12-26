@@ -18,17 +18,26 @@ object JwtMiddleware {
   def apply(config: Config): AuthMiddleware[IO, AppRequestContext] = {
     // Extract token from the request
     val tokenExtractor: Request[IO] => Either[String, String] = request => {
-      request.headers
+      val authToken = request.headers
         .get(CaseInsensitiveString("Authorization"))
-        .headOption match {
-        case Some(header)
-            if header.exists(h => h.value.startsWith("Bearer ")) =>
-          Right(header.map(_.value).head.substring(7)) // Strip "Bearer "
-        case _ =>
-          Left("Missing or invalid Authorization header")
+        .flatMap { header =>
+          if (header.exists(_.value.startsWith("Bearer ")))
+            Some(header.map(_.value).head.substring(7)) // Strip "Bearer "
+          else
+            None
+        }
+
+      val cookieToken = request.cookies
+        .find(_.name == "x_token")
+        .map(_.content)
+
+      //Check against the bearer token first and if null validate against the x_token header for client applications
+      authToken.orElse(cookieToken) match {
+        case Some(token) => Right(token)
+        case None =>
+          Left("Missing or invalid Authorization header and x_token cookie")
       }
     }
-
     // Validate the token and return AuthenticatedUser or error message
     val validateToken
         : Kleisli[IO, Request[IO], Either[String, AppRequestContext]] =
